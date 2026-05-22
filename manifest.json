@@ -5,8 +5,6 @@
   "description": "Pause. Reflect. Proceed. Block distracting websites with intentional friction.",
   "permissions": [
     "storage",
-    "tabs",
-    "activeTab",
     "alarms"
   ],
   "background": {

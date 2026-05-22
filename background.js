@@ -18,7 +18,7 @@ function sanitizeSyncData(data) {
   if (Array.isArray(data.blocklist)) {
     sanitized.blocklist = data.blocklist.map(entry => {
       if (entry && typeof entry === "object" && typeof entry.domain === "string") {
-        const cleanDomain = entry.domain.trim().substring(0, 253);
+        const cleanDomain = entry.domain.trim().replace(/\.$/, "").toLowerCase().substring(0, 253);
         if (cleanDomain) {
           return {
             domain: cleanDomain,
@@ -28,7 +28,7 @@ function sanitizeSyncData(data) {
           };
         }
       } else if (typeof entry === "string") {
-        const cleanDomain = entry.trim().substring(0, 253);
+        const cleanDomain = entry.trim().replace(/\.$/, "").toLowerCase().substring(0, 253);
         if (cleanDomain) {
           return { domain: cleanDomain, holdDuration: 5 };
         }
@@ -63,6 +63,9 @@ function loadCache() {
     cache = sanitizeSyncData(data);
     isCacheLoaded = true;
     return cache;
+  }).catch(err => {
+    cachePromise = null;
+    return cache;
   });
   return cachePromise;
 }
@@ -88,7 +91,7 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 // Shared helper to guarantee identical domain normalization
 function getNormalizedDomainInfo(hostname) {
-  const host = hostname || "";
+  const host = (hostname || "").replace(/\.$/, "").toLowerCase();
   const matched = cache.blocklist.find(entry => {
     const domain = typeof entry === "string" ? entry : entry.domain;
     return host === domain || host.endsWith("." + domain);

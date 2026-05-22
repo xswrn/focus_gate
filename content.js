@@ -7,7 +7,18 @@
   let isOverlayVisible = false;
   let overlayAbortController = null;
 
-  const currentHostname = location.hostname;
+  const currentHostname = location.hostname.replace(/\.$/, "").toLowerCase();
+
+  // Inject startup shield style synchronously to prevent Flash of Unblocked Content (FOUC)
+  const shield = document.createElement("style");
+  shield.textContent = "html { display: none !important; }";
+  document.documentElement.appendChild(shield);
+
+  function removeShield() {
+    if (shield && shield.parentNode) {
+      shield.parentNode.removeChild(shield);
+    }
+  }
 
   function escapeHTML(str) {
     return String(str)
@@ -32,6 +43,8 @@
 
       if (resp && resp.blocked && !resp.hasGrace) {
         showOverlay(false, resp.settings);
+      } else {
+        removeShield();
       }
     } catch (e) {
       if (attempt < RETRY_DELAYS.length - 1) {
@@ -54,6 +67,7 @@
     fallbackHost.id = "focusgate-fallback-host";
     fallbackHost.style.cssText = "all:initial;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;";
     document.documentElement.appendChild(fallbackHost);
+    removeShield();
     const shadow = fallbackHost.attachShadow({ mode: "closed" });
 
     const style = document.createElement("style");
@@ -173,6 +187,7 @@
     overlayHost.id = "focusgate-overlay-host";
     overlayHost.style.cssText = "all:initial;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;";
     document.documentElement.appendChild(overlayHost);
+    removeShield();
     shadowRoot = overlayHost.attachShadow({ mode: "closed" });
 
     const style = document.createElement("style");
@@ -954,6 +969,8 @@
         removeOverlay();
       }
 
+      let isKeyboardHolding = false;
+
       proceedBtn.addEventListener("pointerdown", (e) => {
         if (!canProceed()) return;
         e.preventDefault();
@@ -962,7 +979,20 @@
         animFrame = requestAnimationFrame(animateProgress);
       });
 
+      proceedBtn.addEventListener("keydown", (e) => {
+        if (e.key === " " || e.key === "Enter") {
+          if (!canProceed()) return;
+          e.preventDefault();
+          if (isKeyboardHolding) return;
+          isKeyboardHolding = true;
+          resetProgress();
+          holdStart = Date.now();
+          animFrame = requestAnimationFrame(animateProgress);
+        }
+      });
+
       const cancelHold = () => {
+        isKeyboardHolding = false;
         if (!holdStart) return;
         const elapsed = Date.now() - holdStart;
         resetProgress();
@@ -979,6 +1009,15 @@
           }, 500);
         }
       };
+
+      proceedBtn.addEventListener("keyup", (e) => {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          cancelHold();
+        }
+      });
+
+      proceedBtn.addEventListener("blur", cancelHold);
 
       document.addEventListener("pointerup", cancelHold, { signal: overlayAbortController.signal });
       document.addEventListener("pointercancel", cancelHold, { signal: overlayAbortController.signal });

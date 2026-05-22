@@ -80,11 +80,11 @@
       const migratedList = rawList.map(item => {
         if (typeof item === "string") {
           needsSave = true;
-          const cleanDomain = item.trim().substring(0, 253);
+          const cleanDomain = item.trim().replace(/\.$/, "").toLowerCase().substring(0, 253);
           return cleanDomain ? { domain: cleanDomain, holdDuration: 5 } : null;
         }
         if (item && typeof item === "object" && typeof item.domain === "string") {
-          const cleanDomain = item.domain.trim().substring(0, 253);
+          const cleanDomain = item.domain.trim().replace(/\.$/, "").toLowerCase().substring(0, 253);
           if (cleanDomain) {
             const holdDuration = typeof item.holdDuration === "number" && !isNaN(item.holdDuration)
               ? Math.max(1, Math.min(180, item.holdDuration))
@@ -185,7 +185,7 @@
 
       item.innerHTML = `
         <div class="domain-favicon">
-          <img src="https://www.google.com/s2/favicons?domain=${escapedDomain}&sz=32" alt="" onerror="this.style.display='none'">
+          <img class="domain-fav-img" src="https://www.google.com/s2/favicons?domain=${escapedDomain}&sz=32" alt="">
         </div>
         <span class="domain-name">${escapedDomain}</span>
         
@@ -209,6 +209,13 @@
           </svg>
         </button>
       `;
+
+      const img = item.querySelector(".domain-fav-img");
+      if (img) {
+        img.addEventListener("error", () => {
+          img.style.display = "none";
+        });
+      }
 
       domainListEl.appendChild(item);
     });
@@ -302,6 +309,7 @@
     domain = domain.replace(/^www\./, "");
     domain = domain.split("/")[0];
     domain = domain.split("?")[0];
+    domain = domain.replace(/\.$/, "");
 
     if (domain.length > 253 || !domain || domain.indexOf(".") === -1) {
       showToast("Please enter a valid domain");
@@ -391,6 +399,27 @@
     document.querySelectorAll(".fg-dropdown-menu").forEach(m => m.classList.remove("show"));
     document.querySelectorAll(".fg-dropdown-btn").forEach(b => b.classList.remove("active"));
   });
+
+  function flushPendingSaves() {
+    if (saveTimer) {
+      clearTimeout(saveTimer);
+      saveTimer = null;
+      browser.storage.sync.set({ blocklist: currentBlocklist });
+    }
+    if (promptTimer) {
+      clearTimeout(promptTimer);
+      promptTimer = null;
+      let val = promptInput.value.trim();
+      if (val.length > 100) {
+        val = val.substring(0, 100);
+      }
+      val = val || "Why do you need this right now?";
+      browser.storage.sync.set({ promptText: val });
+    }
+  }
+
+  window.addEventListener("beforeunload", flushPendingSaves);
+  window.addEventListener("pagehide", flushPendingSaves);
 
   // Init
   loadSettings();
