@@ -7,7 +7,7 @@
   let isOverlayVisible = false;
   let overlayAbortController = null;
 
-  const currentHostname = location.hostname.replace(/\.$/, "").toLowerCase();
+  const currentHostname = location.hostname.replace(/\.+$/, "").toLowerCase();
 
   // Inject startup shield style synchronously to prevent Flash of Unblocked Content (FOUC)
   const shield = document.createElement("style");
@@ -718,7 +718,7 @@
       : `You're attempting to access <a href="#">${escapedDomain}</a>`;
 
     return `
-      <div class="fg-card">
+      <div class="fg-card" role="dialog" aria-modal="true" aria-labelledby="fg-title-id" aria-describedby="fg-subtitle-id">
         <div class="fg-badge">
           <span class="fg-badge-dot"></span>
           ${badgeText}
@@ -731,14 +731,14 @@
           </svg>
         </div>
 
-        <div class="fg-title">${titleText}</div>
-        <div class="fg-subtitle">${subtitleText}</div>
+        <div class="fg-title" id="fg-title-id">${titleText}</div>
+        <div class="fg-subtitle" id="fg-subtitle-id">${subtitleText}</div>
 
         <div class="fg-divider"></div>
 
         ${isReappear ? reappearBlock : `
           <div class="fg-textarea-wrap">
-            <textarea class="fg-textarea" placeholder="I need to check..." maxlength="250"></textarea>
+            <textarea class="fg-textarea" placeholder="I need to check..." maxlength="250" aria-label="Distraction reflection prompt"></textarea>
           </div>
           <div class="fg-textarea-hint">
             <span>
@@ -756,7 +756,7 @@
           </div>
           <div class="fg-slider-track">
             <span class="fg-slider-bound">1 min</span>
-            <input type="range" class="fg-range" min="1" max="120" value="15">
+            <input type="range" class="fg-range" min="1" max="120" value="15" aria-label="Access duration in minutes">
             <span class="fg-slider-bound right">120 mins</span>
           </div>
           <div class="fg-presets">

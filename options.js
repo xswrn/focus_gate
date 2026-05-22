@@ -80,11 +80,11 @@
       const migratedList = rawList.map(item => {
         if (typeof item === "string") {
           needsSave = true;
-          const cleanDomain = item.trim().replace(/\.$/, "").toLowerCase().substring(0, 253);
+          const cleanDomain = item.trim().replace(/\.+$/, "").toLowerCase().substring(0, 253);
           return cleanDomain ? { domain: cleanDomain, holdDuration: 5 } : null;
         }
         if (item && typeof item === "object" && typeof item.domain === "string") {
-          const cleanDomain = item.domain.trim().replace(/\.$/, "").toLowerCase().substring(0, 253);
+          const cleanDomain = item.domain.trim().replace(/\.+$/, "").toLowerCase().substring(0, 253);
           if (cleanDomain) {
             const holdDuration = typeof item.holdDuration === "number" && !isNaN(item.holdDuration)
               ? Math.max(1, Math.min(180, item.holdDuration))
@@ -162,30 +162,34 @@
       PRESET_DURATIONS.forEach(d => {
         const isSelected = d === currentVal ? "selected" : "";
         optionsHtml += `
-          <div class="fg-dropdown-option ${isSelected}" data-val="${d}">
+          <button type="button" class="fg-dropdown-option ${isSelected}" data-val="${d}">
             <span>${formatDuration(d)}</span>
             <svg class="checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
-          </div>
+          </button>
         `;
       });
 
       // Add Custom... option
       const isCustomSelected = !PRESET_DURATIONS.includes(currentVal) ? "selected" : "";
       optionsHtml += `
-        <div class="fg-dropdown-option custom-opt ${isCustomSelected}" data-val="custom">
+        <button type="button" class="fg-dropdown-option custom-opt ${isCustomSelected}" data-val="custom">
           <span>${isCustomSelected ? formatDuration(currentVal) : "Custom..."}</span>
           <svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
           </svg>
-        </div>
+        </button>
       `;
 
       item.innerHTML = `
         <div class="domain-favicon">
-          <img class="domain-fav-img" src="https://www.google.com/s2/favicons?domain=${escapedDomain}&sz=32" alt="">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
         </div>
         <span class="domain-name">${escapedDomain}</span>
         
@@ -209,13 +213,6 @@
           </svg>
         </button>
       `;
-
-      const img = item.querySelector(".domain-fav-img");
-      if (img) {
-        img.addEventListener("error", () => {
-          img.style.display = "none";
-        });
-      }
 
       domainListEl.appendChild(item);
     });
@@ -257,6 +254,15 @@
         menu.classList.toggle("show");
       });
 
+      // Escape key handler to close menu
+      container.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          btn.classList.remove("active");
+          menu.classList.remove("show");
+          btn.focus();
+        }
+      });
+
       // Option clicks
       const options = menu.querySelectorAll(".fg-dropdown-option");
       options.forEach(opt => {
@@ -278,11 +284,13 @@
             }
             btn.classList.remove("active");
             menu.classList.remove("show");
+            btn.focus();
           } else {
             const parsedVal = parseInt(val);
             updateDomainDuration(idx, parsedVal);
             btn.classList.remove("active");
             menu.classList.remove("show");
+            btn.focus();
           }
         });
       });
@@ -309,7 +317,7 @@
     domain = domain.replace(/^www\./, "");
     domain = domain.split("/")[0];
     domain = domain.split("?")[0];
-    domain = domain.replace(/\.$/, "");
+    domain = domain.replace(/\.+$/, "");
 
     if (domain.length > 253 || !domain || domain.indexOf(".") === -1) {
       showToast("Please enter a valid domain");
@@ -420,6 +428,27 @@
 
   window.addEventListener("beforeunload", flushPendingSaves);
   window.addEventListener("pagehide", flushPendingSaves);
+
+  // Listen for changes from other tabs
+  browser.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName !== "sync") return;
+
+    if (changes.blocklist && !saveTimer) {
+      currentBlocklist = Array.isArray(changes.blocklist.newValue) ? changes.blocklist.newValue : [];
+      renderDomainList(currentBlocklist);
+    }
+    if (changes.promptText && !promptTimer) {
+      promptInput.value = typeof changes.promptText.newValue === "string" ? changes.promptText.newValue : "Why do you need this right now?";
+    }
+    if (changes.blurBlocked) {
+      blurToggle.checked = typeof changes.blurBlocked.newValue === "boolean" ? changes.blurBlocked.newValue : true;
+    }
+    if (changes.paused) {
+      const isPaused = typeof changes.paused.newValue === "boolean" ? changes.paused.newValue : false;
+      pauseToggle.checked = isPaused;
+      updatePauseStatusText(isPaused);
+    }
+  });
 
   // Init
   loadSettings();
