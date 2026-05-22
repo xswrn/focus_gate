@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusGate — Settings</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0a0c14;
+      color: #e2e4ea;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: #0e1019;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      padding: 28px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-brand {
+      font-size: 18px;
+      font-weight: 800;
+      color: #f0f1f5;
+      margin-bottom: 2px;
+      letter-spacing: -0.3px;
+    }
+    .sidebar-tagline {
+      font-size: 12px;
+      color: #5a5e73;
+      margin-bottom: 32px;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: #8b8fa3;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.18s;
+      border: none;
+      background: none;
+      font-family: inherit;
+      width: 100%;
+      text-align: left;
+    }
+    .sidebar-link:hover {
+      background: rgba(255,255,255,0.04);
+      color: #c8cad3;
+    }
+    .sidebar-link.active {
+      background: #6366f1;
+      color: #fff;
+      font-weight: 600;
+    }
+    .sidebar-link svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* Sidebar Pause Card */
+    .pause-card {
+      margin-top: auto;
+      background: #13151e;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pause-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pause-label-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #e2e4ea;
+    }
+
+    .pause-label-wrap svg {
+      width: 16px;
+      height: 16px;
+      color: #818cf8;
+    }
+
+    .pause-status {
+      font-size: 11px;
+      font-weight: 700;
+      color: #22c55e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .pause-status.paused {
+      color: #5a5e73;
+    }
+
+    .sidebar-version {
+      font-size: 11px;
+      color: #3f4255;
+      margin-top: 4px;
+    }
+
+    /* ─── Main ─── */
+    .main {
+      flex: 1;
+      padding: 40px 48px;
+      overflow-y: auto;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #f0f1f5;
+      margin-bottom: 4px;
+      letter-spacing: -0.3px;
+    }
+    .page-subtitle {
+      font-size: 14px;
+      color: #5a5e73;
+      margin-bottom: 30px;
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: #12141e;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #e2e4ea;
+      margin-bottom: 4px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #5a5e73;
+      margin-bottom: 18px;
+    }
+
+    /* ─── Add domain input ─── */
+    .add-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .add-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1a1d2b;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 0 16px;
+      transition: border-color 0.2s;
+    }
+    .add-input-wrap:focus-within {
+      border-color: rgba(99,102,241,0.5);
+    }
+    .add-input-wrap svg {
+      width: 18px; height: 18px;
+      color: #5a5e73;
+      flex-shrink: 0;
+    }
+    .add-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #e2e4ea;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 13px 0;
+      outline: none;
+    }
+    .add-input::placeholder { color: #4a4e63; }
+
+    .add-btn {
+      padding: 12px 24px;
+      background: #6366f1;
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+      white-space: nowrap;
+    }
+    .add-btn:hover { background: #5558e6; }
+
+    /* ─── Domain list ─── */
+    .domain-list-header {
+      font-size: 15px;
+      font-weight: 700;
+      color: #c8cad3;
+      margin-bottom: 12px;
+    }
+
+    .domain-table-head {
+      display: flex;
+      padding: 0 16px 8px;
+      font-size: 12px;
+      color: #5a5e73;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .domain-table-head span.col-website { flex: 1; }
+    .domain-table-head span.col-hold { width: 140px; padding-left: 8px; }
+    .domain-table-head span.col-action { width: 40px; text-align: right; }
+
+    .domain-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .domain-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #181b28;
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 10px;
+      transition: all 0.18s;
+    }
+    .domain-item:hover {
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .domain-favicon {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: #252838;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .domain-favicon img {
+      width: 18px; height: 18px;
+      border-radius: 3px;
+    }
+
+    .domain-name {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: #e2e4ea;
+    }
+
+    /* Custom Dropdown Styles */
+    .fg-dropdown-container {
+      position: relative;
+      user-select: none;
+      width: 140px;
+    }
+
+    .fg-dropdown-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #13151e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      color: #e2e4ea;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.18s;
+      text-align: left;
+    }
+    .fg-dropdown-btn:hover {
+      background: #1c1e2b;
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+    .fg-dropdown-btn.active {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+    }
+    .fg-dropdown-btn svg {
+      width: 14px;
+      height: 14px;
+      color: #8b8fa3;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .fg-dropdown-btn.active svg {
+      transform: rotate(180deg);
+    }
+
+    .fg-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: #13151e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.05);
+      z-index: 100;
+      display: none;
+      flex-direction: column;
+      padding: 4px;
+      min-width: 130px;
+    }
+    .fg-dropdown-menu.show {
+      display: flex;
+    }
+
+    .fg-dropdown-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: #a5b4fc;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .fg-dropdown-option:hover {
+      background: #1c1e2b;
+      color: #fff;
+    }
+    .fg-dropdown-option.selected {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+    .fg-dropdown-option svg.checkmark {
+      width: 14px;
+      height: 14px;
+      opacity: 0;
+      color: #818cf8;
+      flex-shrink: 0;
+    }
+    .fg-dropdown-option.selected svg.checkmark {
+      opacity: 1;
+    }
+    .fg-dropdown-option.custom-opt svg.edit-icon {
+      width: 12px;
+      height: 12px;
+      opacity: 0.6;
+      color: #8b8fa3;
+      flex-shrink: 0;
+    }
+    .fg-dropdown-option.custom-opt:hover svg.edit-icon {
+      opacity: 1;
+      color: #fff;
+    }
+
+    .domain-remove {
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      color: #5a5e73;
+      cursor: pointer;
+      transition: all 0.18s;
+      flex-shrink: 0;
+    }
+    .domain-remove:hover {
+      background: rgba(239,68,68,0.12);
+      border-color: rgba(239,68,68,0.3);
+      color: #ef4444;
+    }
+    .domain-remove svg { width: 16px; height: 16px; }
+
+    .domain-count {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #5a5e73;
+    }
+    .domain-count-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .domain-count svg { width: 16px; height: 16px; }
+
+    .clear-all-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.18s;
+    }
+    .clear-all-btn:hover { background: rgba(239,68,68,0.1); }
+
+    .domain-empty {
+      text-align: center;
+      padding: 32px;
+      color: #3f4255;
+      font-size: 14px;
+    }
+
+    /* ─── Switch Toggle ─── */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider-toggle {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #252838;
+      transition: .2s;
+      border-radius: 22px;
+    }
+    .slider-toggle:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+    input:checked + .slider-toggle {
+      background-color: #6366f1;
+    }
+    input:checked + .slider-toggle:before {
+      transform: translateX(18px);
+    }
+
+    /* ─── Settings page ─── */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .setting-row:last-child { border-bottom: none; }
+
+    .setting-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .setting-icon {
+      width: 38px; height: 38px;
+      background: rgba(99,102,241,0.1);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .setting-icon svg { width: 18px; height: 18px; color: #818cf8; }
+
+    .setting-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e2e4ea;
+    }
+    .setting-desc {
+      font-size: 12px;
+      color: #5a5e73;
+      margin-top: 2px;
+    }
+
+    /* Prompt input */
+    .prompt-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1a1d2b;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 16px;
+      transition: border-color 0.2s;
+    }
+    .prompt-input-wrap:focus-within {
+      border-color: rgba(99,102,241,0.5);
+    }
+    .prompt-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #e2e4ea;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .prompt-input::placeholder { color: #4a4e63; }
+    .prompt-edit-icon {
+      color: #5a5e73;
+      flex-shrink: 0;
+    }
+    .prompt-edit-icon svg { width: 16px; height: 16px; }
+
+    /* Reset */
+    .reset-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .reset-left .card-title { color: #ef4444; }
+
+    .reset-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 10px;
+      color: #ef4444;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .reset-btn:hover {
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.4);
+    }
+    .reset-btn svg { width: 16px; height: 16px; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      background: #22c55e;
+      color: #fff;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(34,197,94,0.3);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 750px) {
+      .sidebar { width: 70px; min-width: 70px; padding: 20px 8px; }
+      .sidebar-brand, .sidebar-tagline, .sidebar-link span, .pause-card { display: none; }
+      .sidebar-link { justify-content: center; padding: 10px; }
+      .main { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">FocusGate</div>
+    <div class="sidebar-tagline">Pause. Reflect. Proceed.</div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" data-page="websites">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg>
+        <span>Websites</span>
+      </button>
+      <button class="sidebar-link" data-page="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </nav>
+    
+    <div class="pause-card">
+      <div class="pause-header-row">
+        <span class="pause-label-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Pause Extension
+        </span>
+        <label class="switch">
+          <input type="checkbox" id="pause-toggle">
+          <span class="slider-toggle"></span>
+        </label>
+      </div>
+      <div>
+        <span class="pause-status" id="pause-status-text">ON</span>
+        <div class="sidebar-version">Version 1.0.0</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Websites Page -->
+    <section class="page active" id="page-websites">
+      <h1 class="page-title">Websites</h1>
+      <p class="page-subtitle">Add the websites you want to block and set your hold duration.</p>
+
+      <div class="add-row">
+        <div class="add-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg>
+          <input type="text" class="add-input" id="domain-input" placeholder="Enter website (e.g. twitter.com)" maxlength="253">
+        </div>
+        <button class="add-btn" id="add-domain-btn">Add Website</button>
+      </div>
+
+      <div class="domain-list-header">Your Blocked Websites</div>
+      <div class="domain-table-head">
+        <span class="col-website">Website</span>
+        <span class="col-hold">Hold Duration</span>
+        <span class="col-action"></span>
+      </div>
+      <div class="domain-list" id="domain-list"></div>
+      
+      <div class="domain-count" id="domain-count-wrap" style="display:none;">
+        <div class="domain-count-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+          <span id="domain-count-text">0 websites</span>
+        </div>
+        <button class="clear-all-btn" id="clear-all-btn">Clear All</button>
+      </div>
+    </section>
+
+    <!-- Settings Page -->
+    <section class="page" id="page-settings">
+      <h1 class="page-title">Settings</h1>
+      <p class="page-subtitle">Customize how FocusGate works for you.</p>
+
+      <!-- Prompt -->
+      <div class="card">
+        <div class="card-title">Prompt</div>
+        <div class="card-desc">Set the question you'll see before accessing blocked sites.</div>
+        <div class="prompt-input-wrap">
+          <input type="text" class="prompt-input" id="prompt-input" placeholder="Why do you need this right now?" value="" maxlength="100">
+          <span class="prompt-edit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m 16.474 5.408 l 2.118 2.117 m -6.4 -3.553 l -7.263 7.262 a 1 1 0 0 0 -0.263 0.464 l -0.823 3.704 a 0.5 0.5 0 0 0 0.597 0.597 l 3.704 -0.823 a 1 1 0 0 0 0.464 -0.263 l 7.262 -7.262 a 2 2 0 0 0 0 -2.829 l -0.818 -0.818 a 2 2 0 0 0 -2.83 0 z"/></svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="card">
+        <div class="card-title">Options</div>
+        <div class="card-desc">Fine-tune your FocusGate experience.</div>
+        
+        <div class="setting-row">
+          <div class="setting-left">
+            <div class="setting-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div>
+              <div class="setting-label">Blur blocked websites</div>
+              <div class="setting-desc">Blur the content of blocked websites.</div>
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="blur-toggle">
+            <span class="slider-toggle"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Reset -->
+      <div class="card reset-card">
+        <div class="reset-left">
+          <div class="card-title">Reset All Settings</div>
+          <div class="card-desc">Remove all data or reset settings to default.</div>
+        </div>
+        <button class="reset-btn" id="reset-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Reset
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Saved!</div>
+
+  <script src="options.js"></script>
+</body>
+</html>

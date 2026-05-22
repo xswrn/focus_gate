@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "FocusGate",
+  "version": "1.0.0",
+  "description": "Pause. Reflect. Proceed. Block distracting websites with intentional friction.",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "alarms"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon.svg"
+  },
+  "icons": {
+    "48": "icons/icon.svg",
+    "96": "icons/icon.svg"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "focusgate@extension.dev",
+      "strict_min_version": "109.0"
+    }
+  }
+}
