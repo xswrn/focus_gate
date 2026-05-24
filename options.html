@@ -774,6 +774,39 @@
     }
     .reset-btn svg { width: 16px; height: 16px; }
 
+    /* Feedback section */
+    .feedback-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .feedback-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: #1a1d2b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      color: #e2e4ea;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .feedback-btn:hover {
+      background: #22253a;
+      border-color: rgba(99, 102, 241, 0.4);
+      color: #fff;
+    }
+    .feedback-btn svg {
+      width: 16px;
+      height: 16px;
+      color: #818cf8;
+    }
+
     /* Toast */
     .toast {
       position: fixed;
@@ -1064,6 +1097,21 @@
             <input type="checkbox" id="blur-toggle">
             <span class="slider-toggle"></span>
           </label>
+        </div>
+      <!-- Feedback & Support -->
+      <div class="card">
+        <div class="card-title">Feedback & Support</div>
+        <div class="card-desc">Have a suggestion or found a bug? Send us feedback or contact support.</div>
+        
+        <div class="feedback-row">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=me.swaran.c@gmail.com&su=FocusGate%20Feedback" target="_blank" class="add-btn" id="email-link" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Send via Gmail
+          </a>
+          <a href="https://t.me/xswrn" target="_blank" class="feedback-btn" id="telegram-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Telegram PM
+          </a>
         </div>
       </div>
 
