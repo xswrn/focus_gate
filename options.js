@@ -146,6 +146,7 @@
   function updatePauseStatusText(paused) {
     const pillText = document.getElementById("pause-pill-text");
     const holdLabel = document.getElementById("pause-hold-label");
+    const pauseCardHint = document.getElementById("pause-card-hint");
     
     if (pauseTriggerBtn) {
       pauseTriggerBtn.classList.toggle("paused", paused);
@@ -154,7 +155,13 @@
       pillText.textContent = paused ? "OFF" : "ON";
     }
     if (holdLabel) {
-      holdLabel.textContent = paused ? "Hold to enable \u00b7 20s" : "Hold to disable \u00b7 20s";
+      holdLabel.textContent = paused ? "Click to enable" : "Hold to disable \u00b7 20s";
+    }
+    if (pauseCardHint) {
+      const hintTextSpan = pauseCardHint.querySelector("span");
+      if (hintTextSpan) {
+        hintTextSpan.textContent = paused ? "Click button to change" : "Press & hold button to change";
+      }
     }
   }
 
@@ -181,69 +188,189 @@
       item.className = "domain-item";
 
       // Build dropdown options HTML
-      let optionsHtml = "";
+      const dropdownMenu = document.createElement("div");
+      dropdownMenu.className = "fg-dropdown-menu";
+
       PRESET_DURATIONS.forEach(d => {
-        const isSelected = d === currentVal ? "selected" : "";
-        optionsHtml += `
-          <button type="button" class="fg-dropdown-option ${isSelected}" data-val="${d}">
-            <div class="dropdown-option-progress"></div>
-            <span>${formatDuration(d)}</span>
-            <svg class="checkmark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </button>
-        `;
+        const isSelected = d === currentVal;
+        const optBtn = document.createElement("button");
+        optBtn.type = "button";
+        optBtn.className = "fg-dropdown-option";
+        if (isSelected) {
+          optBtn.classList.add("selected");
+        }
+        optBtn.setAttribute("data-val", d);
+
+        const progressDiv = document.createElement("div");
+        progressDiv.className = "dropdown-option-progress";
+        optBtn.appendChild(progressDiv);
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = formatDuration(d);
+        optBtn.appendChild(textSpan);
+
+        const svgCheck = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svgCheck.setAttribute("class", "checkmark");
+        svgCheck.setAttribute("viewBox", "0 0 24 24");
+        svgCheck.setAttribute("fill", "none");
+        svgCheck.setAttribute("stroke", "currentColor");
+        svgCheck.setAttribute("stroke-width", "3");
+        svgCheck.setAttribute("stroke-linecap", "round");
+        svgCheck.setAttribute("stroke-linejoin", "round");
+
+        const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+        polyline.setAttribute("points", "20 6 9 17 4 12");
+        svgCheck.appendChild(polyline);
+        optBtn.appendChild(svgCheck);
+
+        dropdownMenu.appendChild(optBtn);
       });
 
       // Add Custom... option
-      const isCustomSelected = !PRESET_DURATIONS.includes(currentVal) ? "selected" : "";
-      optionsHtml += `
-        <button type="button" class="fg-dropdown-option custom-opt ${isCustomSelected}" data-val="custom">
-          <div class="dropdown-option-progress"></div>
-          <span>${isCustomSelected ? formatDuration(currentVal) : "Custom..."}</span>
-          <svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-        </button>
-      `;
+      const isCustomSelected = !PRESET_DURATIONS.includes(currentVal);
+      const customBtn = document.createElement("button");
+      customBtn.type = "button";
+      customBtn.className = "fg-dropdown-option custom-opt";
+      if (isCustomSelected) {
+        customBtn.classList.add("selected");
+      }
+      customBtn.setAttribute("data-val", "custom");
 
-      item.innerHTML = `
-        <div class="domain-favicon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path>
-          </svg>
-        </div>
-        <span class="domain-name">${escapedDomain}</span>
-        
-        <!-- Red warning prompt for delete -->
-        <span class="delete-warning-msg" style="display: none;">Is it really necessary?</span>
+      const customProgressDiv = document.createElement("div");
+      customProgressDiv.className = "dropdown-option-progress";
+      customBtn.appendChild(customProgressDiv);
 
-        <!-- Custom Hold Duration Dropdown -->
-        <div class="fg-dropdown-container">
-          <button class="fg-dropdown-btn" data-index="${index}">
-            <span class="fg-dropdown-btn-label">${formatDuration(currentVal)}</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </button>
-          <div class="fg-dropdown-menu">
-            ${optionsHtml}
-            <div class="dropdown-warning-msg" style="display: none;">Is it really necessary?</div>
-          </div>
-        </div>
+      const customTextSpan = document.createElement("span");
+      customTextSpan.textContent = isCustomSelected ? formatDuration(currentVal) : "Custom...";
+      customBtn.appendChild(customTextSpan);
 
-        <button class="domain-remove" data-index="${index}" title="Remove">
-          <div class="domain-remove-progress"></div>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-          </svg>
-        </button>
-      `;
+      const svgEdit = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgEdit.setAttribute("class", "edit-icon");
+      svgEdit.setAttribute("viewBox", "0 0 24 24");
+      svgEdit.setAttribute("fill", "none");
+      svgEdit.setAttribute("stroke", "currentColor");
+      svgEdit.setAttribute("stroke-width", "2");
+      svgEdit.setAttribute("stroke-linecap", "round");
+      svgEdit.setAttribute("stroke-linejoin", "round");
 
+      const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path1.setAttribute("d", "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7");
+      svgEdit.appendChild(path1);
+
+      const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path2.setAttribute("d", "M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z");
+      svgEdit.appendChild(path2);
+
+      customBtn.appendChild(svgEdit);
+      dropdownMenu.appendChild(customBtn);
+
+      const favDiv = document.createElement("div");
+      favDiv.className = "domain-favicon";
+
+      const svgFav = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgFav.setAttribute("viewBox", "0 0 24 24");
+      svgFav.setAttribute("fill", "none");
+      svgFav.setAttribute("stroke", "currentColor");
+      svgFav.setAttribute("stroke-width", "2");
+      svgFav.setAttribute("stroke-linecap", "round");
+      svgFav.setAttribute("stroke-linejoin", "round");
+
+      const favCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      favCircle.setAttribute("cx", "12");
+      favCircle.setAttribute("cy", "12");
+      favCircle.setAttribute("r", "10");
+      svgFav.appendChild(favCircle);
+
+      const favLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      favLine.setAttribute("x1", "2");
+      favLine.setAttribute("y1", "12");
+      favLine.setAttribute("x2", "22");
+      favLine.setAttribute("y2", "12");
+      svgFav.appendChild(favLine);
+
+      const favPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      favPath.setAttribute("d", "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z");
+      svgFav.appendChild(favPath);
+
+      favDiv.appendChild(svgFav);
+      item.appendChild(favDiv);
+
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "domain-name";
+      nameSpan.textContent = entry.domain;
+      item.appendChild(nameSpan);
+
+      // Red warning prompt for delete
+      const deleteWarningSpan = document.createElement("span");
+      deleteWarningSpan.className = "delete-warning-msg";
+      deleteWarningSpan.style.display = "none";
+      deleteWarningSpan.textContent = "Is it really necessary?";
+      item.appendChild(deleteWarningSpan);
+
+      // Custom Hold Duration Dropdown
+      const dropdownContainer = document.createElement("div");
+      dropdownContainer.className = "fg-dropdown-container";
+
+      const dropdownBtn = document.createElement("button");
+      dropdownBtn.className = "fg-dropdown-btn";
+      dropdownBtn.setAttribute("data-index", index);
+
+      const btnLabelSpan = document.createElement("span");
+      btnLabelSpan.className = "fg-dropdown-btn-label";
+      btnLabelSpan.textContent = formatDuration(currentVal);
+      dropdownBtn.appendChild(btnLabelSpan);
+
+      const svgArrow = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgArrow.setAttribute("viewBox", "0 0 24 24");
+      svgArrow.setAttribute("fill", "none");
+      svgArrow.setAttribute("stroke", "currentColor");
+      svgArrow.setAttribute("stroke-width", "2");
+      svgArrow.setAttribute("stroke-linecap", "round");
+      svgArrow.setAttribute("stroke-linejoin", "round");
+
+      const arrowPolyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      arrowPolyline.setAttribute("points", "6 9 12 15 18 9");
+      svgArrow.appendChild(arrowPolyline);
+
+      dropdownBtn.appendChild(svgArrow);
+      dropdownContainer.appendChild(dropdownBtn);
+
+      const dropdownWarningMsg = document.createElement("div");
+      dropdownWarningMsg.className = "dropdown-warning-msg";
+      dropdownWarningMsg.style.display = "none";
+      dropdownWarningMsg.textContent = "Is it really necessary?";
+      dropdownMenu.appendChild(dropdownWarningMsg);
+
+      dropdownContainer.appendChild(dropdownMenu);
+      item.appendChild(dropdownContainer);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.className = "domain-remove";
+      removeBtn.setAttribute("data-index", index);
+      removeBtn.setAttribute("title", "Remove");
+
+      const removeProgressDiv = document.createElement("div");
+      removeProgressDiv.className = "domain-remove-progress";
+      removeBtn.appendChild(removeProgressDiv);
+
+      const svgRemove = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgRemove.setAttribute("viewBox", "0 0 24 24");
+      svgRemove.setAttribute("fill", "none");
+      svgRemove.setAttribute("stroke", "currentColor");
+      svgRemove.setAttribute("stroke-width", "2");
+      svgRemove.setAttribute("stroke-linecap", "round");
+      svgRemove.setAttribute("stroke-linejoin", "round");
+
+      const removePolyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+      removePolyline.setAttribute("points", "3 6 5 6 21 6");
+      svgRemove.appendChild(removePolyline);
+
+      const removePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      removePath.setAttribute("d", "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2");
+      svgRemove.appendChild(removePath);
+
+      removeBtn.appendChild(svgRemove);
+      item.appendChild(removeBtn);
       domainListEl.appendChild(item);
     });
 
@@ -600,7 +727,7 @@
         pauseHoldFill.style.width = "0%";
       }
       if (pauseHoldLabel) {
-        pauseHoldLabel.textContent = isExtensionPaused ? "Hold to enable \u00b7 20s" : "Hold to disable \u00b7 20s";
+        pauseHoldLabel.textContent = isExtensionPaused ? "Click to enable" : "Hold to disable \u00b7 20s";
       }
       if (pauseDangerAlert) {
         pauseDangerAlert.style.display = "none";
@@ -620,16 +747,16 @@
       }
       if (pauseHoldLabel) {
         const remaining = Math.ceil((20000 - elapsed) / 1000);
-        const action = isExtensionPaused ? "Enabling" : "Disabling";
+        const action = "Disabling";
         pauseHoldLabel.textContent = `${action} \u00b7 ${Math.max(0, remaining)}s`;
       }
 
       if (progress >= 1) {
         // Success!
-        isExtensionPaused = !isExtensionPaused;
+        isExtensionPaused = true;
         browser.storage.sync.set({ paused: isExtensionPaused }).then(() => {
           updatePauseStatusText(isExtensionPaused);
-          showToast(isExtensionPaused ? "Extension paused!" : "Extension active!");
+          showToast("Extension paused!");
           cancelPauseHold();
         }).catch(err => {
           showToast("Save failed", "error");
@@ -641,6 +768,17 @@
     }
 
     function startPauseHold() {
+      if (isExtensionPaused) {
+        isExtensionPaused = false;
+        browser.storage.sync.set({ paused: isExtensionPaused }).then(() => {
+          updatePauseStatusText(isExtensionPaused);
+          showToast("Extension active!");
+        }).catch(err => {
+          showToast("Save failed", "error");
+        });
+        return;
+      }
+
       if (isHoldingPause) return;
       isHoldingPause = true;
       holdPauseStart = Date.now();

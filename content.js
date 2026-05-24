@@ -201,7 +201,7 @@
 
     const wrapper = document.createElement("div");
     wrapper.className = "fg-overlay";
-    wrapper.innerHTML = getOverlayHTML(promptText, holdDuration, isReappear);
+    wrapper.appendChild(getOverlayHTML(promptText, holdDuration, isReappear));
     shadowRoot.appendChild(wrapper);
 
     overlayAbortController = new AbortController();
@@ -708,121 +708,376 @@
   }
 
   function getOverlayHTML(promptText, holdDuration, isReappear) {
-    const escapedDomain = escapeHTML(currentHostname.replace(/^www\./, ""));
+    const domainText = currentHostname.replace(/^www\./, "");
     const badgeText = isReappear ? "Limit reached" : "Active";
-    const badgeColorStyle = isReappear ? "" : "";
+    const titleText = isReappear ? "You've reached your limit." : promptText;
 
-    const reappearBlock = isReappear ? `
-      <div class="fg-reappear-info">
-        Your access to <strong>${escapedDomain}</strong> has ended.<br>
-        You can choose to continue, or exit and stay focused.
-      </div>
-    ` : "";
+    const card = document.createElement("div");
+    card.className = "fg-card";
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-modal", "true");
+    card.setAttribute("aria-labelledby", "fg-title-id");
+    card.setAttribute("aria-describedby", "fg-subtitle-id");
 
-    const titleText = isReappear ? "You've reached your limit." : escapeHTML(promptText);
-    const subtitleText = isReappear
-      ? "Do you want to continue?"
-      : `You're attempting to access <a href="#">${escapedDomain}</a>`;
+    const badge = document.createElement("div");
+    badge.className = "fg-badge";
+    const badgeDot = document.createElement("span");
+    badgeDot.className = "fg-badge-dot";
+    badge.appendChild(badgeDot);
+    badge.appendChild(document.createTextNode(badgeText));
+    card.appendChild(badge);
 
-    return `
-      <div class="fg-card" role="dialog" aria-modal="true" aria-labelledby="fg-title-id" aria-describedby="fg-subtitle-id">
-        <div class="fg-badge">
-          <span class="fg-badge-dot"></span>
-          ${badgeText}
-        </div>
+    const clockDiv = document.createElement("div");
+    clockDiv.className = "fg-clock-icon";
 
-        <div class="fg-clock-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <polyline points="12 6 12 12 16 14"/>
-          </svg>
-        </div>
+    const svgClock = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgClock.setAttribute("viewBox", "0 0 24 24");
+    svgClock.setAttribute("fill", "none");
+    svgClock.setAttribute("stroke", "#818cf8");
+    svgClock.setAttribute("stroke-width", "2");
+    svgClock.setAttribute("stroke-linecap", "round");
+    svgClock.setAttribute("stroke-linejoin", "round");
 
-        <div class="fg-title" id="fg-title-id">${titleText}</div>
-        <div class="fg-subtitle" id="fg-subtitle-id">${subtitleText}</div>
+    const clockCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    clockCircle.setAttribute("cx", "12");
+    clockCircle.setAttribute("cy", "12");
+    clockCircle.setAttribute("r", "10");
+    svgClock.appendChild(clockCircle);
 
-        <div class="fg-divider"></div>
+    const clockPolyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    clockPolyline.setAttribute("points", "12 6 12 12 16 14");
+    svgClock.appendChild(clockPolyline);
 
-        ${isReappear ? reappearBlock : `
-          <div class="fg-textarea-wrap">
-            <textarea class="fg-textarea" placeholder="I need to check..." maxlength="250" aria-label="Distraction reflection prompt"></textarea>
-          </div>
-          <div class="fg-textarea-hint">
-            <span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m 16.474 5.408 l 2.118 2.117 m -6.4 -3.553 l -7.263 7.262 a 1 1 0 0 0 -0.263 0.464 l -0.823 3.704 a 0.5 0.5 0 0 0 0.597 0.597 l 3.704 -0.823 a 1 1 0 0 0 0.464 -0.263 l 7.262 -7.262 a 2 2 0 0 0 0 -2.829 l -0.818 -0.818 a 2 2 0 0 0 -2.83 0 z"/></svg>
-              Type at least 10 characters to continue
-            </span>
-            <span class="fg-char-count">0 / 10</span>
-          </div>
-        `}
+    clockDiv.appendChild(svgClock);
+    card.appendChild(clockDiv);
 
-        <div class="fg-slider-section">
-          <div class="fg-slider-header">
-            <span class="fg-slider-label">How long do you need access?</span>
-            <span class="fg-slider-value">15 minutes</span>
-          </div>
-          <div class="fg-slider-track">
-            <span class="fg-slider-bound">1 min</span>
-            <input type="range" class="fg-range" min="1" max="120" value="15" aria-label="Access duration in minutes">
-            <span class="fg-slider-bound right">120 mins</span>
-          </div>
-          <div class="fg-presets">
-            <button class="fg-preset-btn" data-val="5">5 min</button>
-            <button class="fg-preset-btn active" data-val="15">15 min</button>
-            <button class="fg-preset-btn" data-val="30">30 min</button>
-            <button class="fg-preset-btn" data-val="60">1 hour</button>
-          </div>
-        </div>
+    const title = document.createElement("div");
+    title.className = "fg-title";
+    title.id = "fg-title-id";
+    title.textContent = titleText;
+    card.appendChild(title);
 
-        <div class="fg-warning" id="fg-warning">
-          <div class="fg-warning-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <polyline points="12 6 12 12 16 14"/>
-            </svg>
-            <div class="fg-warning-badge">
-              <svg viewBox="0 0 24 24" fill="#ef4444" stroke="none">
-                <path d="M12 2L2 20h20L12 2zm0 14a1 1 0 110 2 1 1 0 010-2zm-1-8h2v6h-2V8z"/>
-              </svg>
-            </div>
-          </div>
-          <div class="fg-warning-separator"></div>
-          <div class="fg-warning-text">
-            <div class="fg-warning-title">That's a long time.</div>
-            <div class="fg-warning-desc">You might not need this much time.<br>Take a moment to make sure it's necessary.</div>
-          </div>
-        </div>
+    const subtitle = document.createElement("div");
+    subtitle.className = "fg-subtitle";
+    subtitle.id = "fg-subtitle-id";
+    if (isReappear) {
+      subtitle.textContent = "Do you want to continue?";
+    } else {
+      subtitle.appendChild(document.createTextNode("You're attempting to access "));
+      const link = document.createElement("a");
+      link.href = "#";
+      link.textContent = domainText;
+      subtitle.appendChild(link);
+    }
+    card.appendChild(subtitle);
 
-        <div class="fg-buttons">
-          <button class="fg-exit-btn" id="fg-exit">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            <div class="fg-exit-inner">
-              <span>Exit</span>
-              <span class="fg-exit-sub">Close this tab</span>
-            </div>
-          </button>
-          <button class="fg-proceed-btn" id="fg-proceed">
-            <div class="fg-ring-wrap">
-              <svg viewBox="0 0 40 40">
-                <circle class="fg-ring-bg" cx="20" cy="20" r="18"/>
-                <circle class="fg-ring-progress" cx="20" cy="20" r="18"/>
-                <circle class="fg-ring-dot" cx="20" cy="20" r="5"/>
-              </svg>
-            </div>
-            <div class="fg-proceed-inner">
-              <span>Hold to Proceed</span>
-              <span class="fg-proceed-sub">Hold for ${holdDuration} seconds to continue.</span>
-            </div>
-            <div class="fg-proceed-fill"></div>
-          </button>
-        </div>
+    const divider = document.createElement("div");
+    divider.className = "fg-divider";
+    card.appendChild(divider);
 
-        <div class="fg-footer">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span>Each time you continue, it gets harder to break the cycle.</span>
-        </div>
-      </div>
-    `;
+    if (isReappear) {
+      const reappearInfo = document.createElement("div");
+      reappearInfo.className = "fg-reappear-info";
+      reappearInfo.appendChild(document.createTextNode("Your access to "));
+      const strong = document.createElement("strong");
+      strong.textContent = domainText;
+      reappearInfo.appendChild(strong);
+      reappearInfo.appendChild(document.createTextNode(" has ended."));
+      reappearInfo.appendChild(document.createElement("br"));
+      reappearInfo.appendChild(document.createTextNode("You can choose to continue, or exit and stay focused."));
+      card.appendChild(reappearInfo);
+    } else {
+      const textareaWrap = document.createElement("div");
+      textareaWrap.className = "fg-textarea-wrap";
+
+      const textarea = document.createElement("textarea");
+      textarea.className = "fg-textarea";
+      textarea.setAttribute("placeholder", "I need to check...");
+      textarea.setAttribute("maxlength", "250");
+      textarea.setAttribute("aria-label", "Distraction reflection prompt");
+      textareaWrap.appendChild(textarea);
+      card.appendChild(textareaWrap);
+
+      const textareaHint = document.createElement("div");
+      textareaHint.className = "fg-textarea-hint";
+
+      const hintSpan = document.createElement("span");
+      
+      const svgHint = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svgHint.setAttribute("viewBox", "0 0 24 24");
+      svgHint.setAttribute("fill", "none");
+      svgHint.setAttribute("stroke", "currentColor");
+      svgHint.setAttribute("stroke-width", "2");
+      svgHint.setAttribute("stroke-linecap", "round");
+      svgHint.setAttribute("stroke-linejoin", "round");
+
+      const hintPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      hintPath.setAttribute("d", "m 16.474 5.408 l 2.118 2.117 m -6.4 -3.553 l -7.263 7.262 a 1 1 0 0 0 -0.263 0.464 l -0.823 3.704 a 0.5 0.5 0 0 0 0.597 0.597 l 3.704 -0.823 a 1 1 0 0 0 0.464 -0.263 l 7.262 -7.262 a 2 2 0 0 0 0 -2.829 l -0.818 -0.818 a 2 2 0 0 0 -2.83 0 z");
+      svgHint.appendChild(hintPath);
+      hintSpan.appendChild(svgHint);
+
+      hintSpan.appendChild(document.createTextNode(" Type at least 10 characters to continue"));
+      textareaHint.appendChild(hintSpan);
+
+      const charCountSpan = document.createElement("span");
+      charCountSpan.className = "fg-char-count";
+      charCountSpan.textContent = "0 / 10";
+      textareaHint.appendChild(charCountSpan);
+
+      card.appendChild(textareaHint);
+    }
+
+    const sliderSection = document.createElement("div");
+    sliderSection.className = "fg-slider-section";
+
+    const sliderHeader = document.createElement("div");
+    sliderHeader.className = "fg-slider-header";
+
+    const sliderLabel = document.createElement("span");
+    sliderLabel.className = "fg-slider-label";
+    sliderLabel.textContent = "How long do you need access?";
+    sliderHeader.appendChild(sliderLabel);
+
+    const sliderValue = document.createElement("span");
+    sliderValue.className = "fg-slider-value";
+    sliderValue.textContent = "15 minutes";
+    sliderHeader.appendChild(sliderValue);
+    sliderSection.appendChild(sliderHeader);
+
+    const sliderTrack = document.createElement("div");
+    sliderTrack.className = "fg-slider-track";
+
+    const boundLeft = document.createElement("span");
+    boundLeft.className = "fg-slider-bound";
+    boundLeft.textContent = "1 min";
+    sliderTrack.appendChild(boundLeft);
+
+    const rangeInput = document.createElement("input");
+    rangeInput.type = "range";
+    rangeInput.className = "fg-range";
+    rangeInput.min = "1";
+    rangeInput.max = "120";
+    rangeInput.value = "15";
+    rangeInput.setAttribute("aria-label", "Access duration in minutes");
+    sliderTrack.appendChild(rangeInput);
+
+    const boundRight = document.createElement("span");
+    boundRight.className = "fg-slider-bound right";
+    boundRight.textContent = "120 mins";
+    sliderTrack.appendChild(boundRight);
+    sliderSection.appendChild(sliderTrack);
+
+    const presets = document.createElement("div");
+    presets.className = "fg-presets";
+
+    const presetVals = [
+      { val: "5", label: "5 min", active: false },
+      { val: "15", label: "15 min", active: true },
+      { val: "30", label: "30 min", active: false },
+      { val: "60", label: "1 hour", active: false }
+    ];
+
+    presetVals.forEach(p => {
+      const btn = document.createElement("button");
+      btn.className = p.active ? "fg-preset-btn active" : "fg-preset-btn";
+      btn.setAttribute("data-val", p.val);
+      btn.textContent = p.label;
+      presets.appendChild(btn);
+    });
+
+    sliderSection.appendChild(presets);
+    card.appendChild(sliderSection);
+
+    const warning = document.createElement("div");
+    warning.className = "fg-warning";
+    warning.id = "fg-warning";
+
+    const warningIcon = document.createElement("div");
+    warningIcon.className = "fg-warning-icon";
+
+    const svgWarning = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgWarning.setAttribute("viewBox", "0 0 24 24");
+    svgWarning.setAttribute("fill", "none");
+    svgWarning.setAttribute("stroke", "#ef4444");
+    svgWarning.setAttribute("stroke-width", "2");
+    svgWarning.setAttribute("stroke-linecap", "round");
+    svgWarning.setAttribute("stroke-linejoin", "round");
+
+    const warnCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    warnCircle.setAttribute("cx", "12");
+    warnCircle.setAttribute("cy", "12");
+    warnCircle.setAttribute("r", "10");
+    svgWarning.appendChild(warnCircle);
+
+    const warnPolyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    warnPolyline.setAttribute("points", "12 6 12 12 16 14");
+    svgWarning.appendChild(warnPolyline);
+    warningIcon.appendChild(svgWarning);
+
+    const warningBadge = document.createElement("div");
+    warningBadge.className = "fg-warning-badge";
+
+    const svgBadge = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgBadge.setAttribute("viewBox", "0 0 24 24");
+    svgBadge.setAttribute("fill", "#ef4444");
+    svgBadge.setAttribute("stroke", "none");
+
+    const badgePath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    badgePath.setAttribute("d", "M12 2L2 20h20L12 2zm0 14a1 1 0 110 2 1 1 0 010-2zm-1-8h2v6h-2V8z");
+    svgBadge.appendChild(badgePath);
+    warningBadge.appendChild(svgBadge);
+    warningIcon.appendChild(warningBadge);
+    warning.appendChild(warningIcon);
+
+    const separator = document.createElement("div");
+    separator.className = "fg-warning-separator";
+    warning.appendChild(separator);
+
+    const warningText = document.createElement("div");
+    warningText.className = "fg-warning-text";
+
+    const warningTitle = document.createElement("div");
+    warningTitle.className = "fg-warning-title";
+    warningTitle.textContent = "That's a long time.";
+    warningText.appendChild(warningTitle);
+
+    const warningDesc = document.createElement("div");
+    warningDesc.className = "fg-warning-desc";
+    warningDesc.appendChild(document.createTextNode("You might not need this much time."));
+    warningDesc.appendChild(document.createElement("br"));
+    warningDesc.appendChild(document.createTextNode("Take a moment to make sure it's necessary."));
+    warningText.appendChild(warningDesc);
+    warning.appendChild(warningText);
+    card.appendChild(warning);
+
+    const buttons = document.createElement("div");
+    buttons.className = "fg-buttons";
+
+    const exitBtn = document.createElement("button");
+    exitBtn.className = "fg-exit-btn";
+    exitBtn.id = "fg-exit";
+
+    const svgCross = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgCross.setAttribute("viewBox", "0 0 24 24");
+    svgCross.setAttribute("fill", "none");
+    svgCross.setAttribute("stroke", "currentColor");
+    svgCross.setAttribute("stroke-width", "2.5");
+    svgCross.setAttribute("stroke-linecap", "round");
+    svgCross.setAttribute("stroke-linejoin", "round");
+
+    const line1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line1.setAttribute("x1", "18");
+    line1.setAttribute("y1", "6");
+    line1.setAttribute("x2", "6");
+    line1.setAttribute("y2", "18");
+    svgCross.appendChild(line1);
+
+    const line2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    line2.setAttribute("x1", "6");
+    line2.setAttribute("y1", "6");
+    line2.setAttribute("x2", "18");
+    line2.setAttribute("y2", "18");
+    svgCross.appendChild(line2);
+    exitBtn.appendChild(svgCross);
+
+    const exitInner = document.createElement("div");
+    exitInner.className = "fg-exit-inner";
+
+    const exitTitleSpan = document.createElement("span");
+    exitTitleSpan.textContent = "Exit";
+    exitInner.appendChild(exitTitleSpan);
+
+    const exitSubSpan = document.createElement("span");
+    exitSubSpan.className = "fg-exit-sub";
+    exitSubSpan.textContent = "Close this tab";
+    exitInner.appendChild(exitSubSpan);
+    exitBtn.appendChild(exitInner);
+    buttons.appendChild(exitBtn);
+
+    const proceedBtn = document.createElement("button");
+    proceedBtn.className = "fg-proceed-btn";
+    proceedBtn.id = "fg-proceed";
+
+    const ringWrap = document.createElement("div");
+    ringWrap.className = "fg-ring-wrap";
+
+    const svgRing = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgRing.setAttribute("viewBox", "0 0 40 40");
+
+    const circleBg = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circleBg.setAttribute("class", "fg-ring-bg");
+    circleBg.setAttribute("cx", "20");
+    circleBg.setAttribute("cy", "20");
+    circleBg.setAttribute("r", "18");
+    svgRing.appendChild(circleBg);
+
+    const circleProgress = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circleProgress.setAttribute("class", "fg-ring-progress");
+    circleProgress.setAttribute("cx", "20");
+    circleProgress.setAttribute("cy", "20");
+    circleProgress.setAttribute("r", "18");
+    svgRing.appendChild(circleProgress);
+
+    const circleDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circleDot.setAttribute("class", "fg-ring-dot");
+    circleDot.setAttribute("cx", "20");
+    circleDot.setAttribute("cy", "20");
+    circleDot.setAttribute("r", "5");
+    svgRing.appendChild(circleDot);
+
+    ringWrap.appendChild(svgRing);
+    proceedBtn.appendChild(ringWrap);
+
+    const proceedInner = document.createElement("div");
+    proceedInner.className = "fg-proceed-inner";
+
+    const proceedSpan = document.createElement("span");
+    proceedSpan.textContent = "Hold to Proceed";
+    proceedInner.appendChild(proceedSpan);
+
+    const proceedSub = document.createElement("span");
+    proceedSub.className = "fg-proceed-sub";
+    proceedSub.textContent = "Hold for " + holdDuration + " seconds to continue.";
+    proceedInner.appendChild(proceedSub);
+    proceedBtn.appendChild(proceedInner);
+
+    const proceedFill = document.createElement("div");
+    proceedFill.className = "fg-proceed-fill";
+    proceedBtn.appendChild(proceedFill);
+    buttons.appendChild(proceedBtn);
+    card.appendChild(buttons);
+
+    const footer = document.createElement("div");
+    footer.className = "fg-footer";
+
+    const svgLock = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgLock.setAttribute("viewBox", "0 0 24 24");
+    svgLock.setAttribute("fill", "none");
+    svgLock.setAttribute("stroke", "currentColor");
+    svgLock.setAttribute("stroke-width", "2");
+    svgLock.setAttribute("stroke-linecap", "round");
+    svgLock.setAttribute("stroke-linejoin", "round");
+
+    const lockRect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    lockRect.setAttribute("x", "3");
+    lockRect.setAttribute("y", "11");
+    lockRect.setAttribute("width", "18");
+    lockRect.setAttribute("height", "11");
+    lockRect.setAttribute("rx", "2");
+    lockRect.setAttribute("ry", "2");
+    svgLock.appendChild(lockRect);
+
+    const lockPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    lockPath.setAttribute("d", "M7 11V7a5 5 0 0 1 10 0v4");
+    svgLock.appendChild(lockPath);
+    footer.appendChild(svgLock);
+
+    const footerSpan = document.createElement("span");
+    footerSpan.textContent = "Each time you continue, it gets harder to break the cycle.";
+    footer.appendChild(footerSpan);
+    card.appendChild(footer);
+
+    return card;
   }
 
   function bindOverlayEvents(root, holdDuration) {
