@@ -14,7 +14,12 @@
   shield.textContent = "html { display: none !important; }";
   document.documentElement.appendChild(shield);
 
+  // Auto-remove shield after 200ms to prevent perceived slowness on non-blocked pages
+  // during service worker cold starts. If the page is blocked, the overlay will cover it.
+  const shieldTimeout = setTimeout(removeShield, 200);
+
   function removeShield() {
+    clearTimeout(shieldTimeout);
     if (shield && shield.parentNode) {
       shield.parentNode.removeChild(shield);
     }
@@ -490,7 +495,7 @@
       .fg-proceed-btn {
         flex: 1;
         display: flex; align-items: center; gap: 14px;
-        padding: 16px 20px;
+        padding: 18px 22px;
         background: linear-gradient(135deg, #6366f1 0%, #4f8cff 100%);
         border: none;
         border-radius: 14px;
@@ -514,13 +519,15 @@
       }
 
       .fg-proceed-inner {
-        display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+        display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
         z-index: 2;
+        line-height: 1.3;
       }
       .fg-proceed-sub {
-        font-size: 11.5px;
+        font-size: 11px;
         font-weight: 400;
         opacity: 0.8;
+        line-height: 1.35;
       }
 
       /* Progress ring */
@@ -916,7 +923,7 @@
     // Exit button
     if (exitBtn) {
       exitBtn.addEventListener("click", () => {
-        browser.runtime.sendMessage({ type: "CLOSE_TAB" });
+        browser.runtime.sendMessage({ type: "CLOSE_TAB" }).catch(() => {});
         // Fallback
         try { window.close(); } catch (e) {}
       });
@@ -965,7 +972,7 @@
           type: "START_TIMER",
           duration: sliderVal,
           hostname: currentHostname
-        });
+        }).catch(() => {});
         removeOverlay();
       }
 

@@ -52,6 +52,15 @@ function sanitizeSyncData(data) {
   return sanitized;
 }
 
+function updateBadge(paused) {
+  if (paused) {
+    browser.action.setBadgeText({ text: "OFF" });
+    browser.action.setBadgeBackgroundColor({ color: "#5a5e73" });
+  } else {
+    browser.action.setBadgeText({ text: "" });
+  }
+}
+
 function loadCache() {
   if (cachePromise) return cachePromise;
   cachePromise = browser.storage.sync.get({
@@ -71,7 +80,7 @@ function loadCache() {
 }
 
 // Hydrate on startup
-loadCache();
+loadCache().then(() => updateBadge(cache.paused));
 
 // Keep synced with options
 browser.storage.onChanged.addListener((changes, area) => {
@@ -86,6 +95,9 @@ browser.storage.onChanged.addListener((changes, area) => {
       }
     }
     cache = sanitizeSyncData(rawData);
+    if (changes.paused) {
+      updateBadge(cache.paused);
+    }
   }
 });
 
@@ -144,20 +156,20 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return { hasGrace: false, blocked: false };
       };
 
-      processCheck().then(sendResponse);
+      processCheck().then(sendResponse).catch(() => sendResponse({ error: "internal" }));
       return true;
 
     case "START_TIMER":
       if (tabId != null && Number.isInteger(tabId)) {
         const { domainStr } = getNormalizedDomainInfo(message.hostname);
         const safeDuration = Math.max(1, Math.min(180, Number(message.duration) || 5));
-        browser.alarms.create(`timer_${tabId}_${domainStr}`, { delayInMinutes: safeDuration });
+        browser.alarms.create(`timer_${tabId}_${domainStr}`, { delayInMinutes: safeDuration }).catch(() => {});
       }
       return false;
 
     case "CLOSE_TAB":
       if (tabId != null && Number.isInteger(tabId)) {
-        browser.tabs.remove(tabId);
+        browser.tabs.remove(tabId).catch(() => {});
       }
       return false;
 

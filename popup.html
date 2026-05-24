@@ -26,14 +26,8 @@
 
     .popup-logo {
       width: 40px; height: 40px;
-      background: linear-gradient(135deg, #6366f1 0%, #4f8cff 100%);
-      border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-    }
-    .popup-logo svg {
-      width: 22px; height: 22px;
-      color: #fff;
     }
 
     .popup-brand {
@@ -166,12 +160,12 @@
 
   <div class="popup-header">
     <div class="popup-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
+      <img src="icons/logo.png" alt="logo" style="width: 32px; height: 32px; object-fit: contain;">
     </div>
     <div class="popup-brand">
-      <span class="popup-name">FocusGate</span>
+      <span class="popup-name" style="margin-bottom: 2px;">
+        <img src="icons/text_logo.png" alt="FocusGate" style="height: 18px; width: auto; object-fit: contain; display: block;">
+      </span>
       <span class="popup-tagline">Pause. Reflect. Proceed.</span>
     </div>
   </div>

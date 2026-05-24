@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusGate — Settings</title>
+  <title>focus gate — Settings</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -86,50 +86,216 @@
       margin-top: auto;
       background: #13151e;
       border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      padding: 14px 16px;
+      border-radius: 14px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      transition: all 0.3s ease;
     }
 
     .pause-header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .pause-label-wrap {
+    .pause-title-wrap {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
+    }
+
+    .pause-shield-icon {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .pause-text-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pause-card-title {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       color: #e2e4ea;
+      line-height: 1.3;
     }
 
-    .pause-label-wrap svg {
-      width: 16px;
-      height: 16px;
-      color: #818cf8;
+    .pause-toggle-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 16px;
+      border: 1.5px solid #22c55e;
+      background: rgba(34, 197, 94, 0.05);
+      cursor: default;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .pause-toggle-pill.paused {
+      border-color: #5a5e73;
+      background: rgba(90, 94, 115, 0.05);
     }
 
-    .pause-status {
-      font-size: 11px;
+    .pause-pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      transition: all 0.2s ease;
+    }
+    .pause-toggle-pill.paused .pause-pill-dot {
+      background: #5a5e73;
+    }
+
+    .pause-pill-text {
+      font-size: 10px;
       font-weight: 700;
       color: #22c55e;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
     }
-    .pause-status.paused {
+    .pause-toggle-pill.paused .pause-pill-text {
+      color: #8b8fa3;
+    }
+
+    /* Hold Button */
+    .pause-hold-btn {
+      position: relative;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1.5px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .pause-hold-btn:hover {
+      background: rgba(99, 102, 241, 0.04);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+    .pause-hold-btn:active {
+      transform: scale(0.98);
+    }
+    .pause-hold-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.28));
+      border-radius: 10px;
+      z-index: 0;
+    }
+    .pause-hold-label {
+      position: relative;
+      z-index: 1;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #8b8fa3;
+      display: block;
+      text-align: center;
+    }
+    .pause-danger-alert {
+      font-size: 11px;
+      font-weight: 700;
+      color: #ef4444;
+      text-align: center;
+      display: none;
+    }
+
+    .pause-card-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      font-size: 10px;
       color: #5a5e73;
+      text-align: center;
+      margin-top: 2px;
+      animation: fgFadeIn 0.2s ease;
+    }
+    .pause-card-hint svg {
+      width: 12px;
+      height: 12px;
+      color: #6366f1;
+      flex-shrink: 0;
+      opacity: 0.65;
     }
 
     .sidebar-version {
       font-size: 11px;
       color: #3f4255;
       margin-top: 4px;
+    }
+
+    /* Website Deletion & Dropdown Progress Styles */
+    .domain-remove {
+      position: relative;
+      overflow: hidden;
+    }
+    .domain-remove-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      background: rgba(239, 68, 68, 0.25);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .domain-remove svg {
+      position: relative;
+      z-index: 2;
+    }
+    .delete-warning-msg {
+      color: #ef4444;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 12px;
+      animation: fgFadeIn 0.2s ease;
+    }
+    @keyframes fgFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .fg-dropdown-option {
+      position: relative;
+      overflow: hidden;
+    }
+    .dropdown-option-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 0%;
+      background: rgba(99, 102, 241, 0.25);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .fg-dropdown-option span, .fg-dropdown-option svg {
+      position: relative;
+      z-index: 2;
+    }
+
+    .dropdown-warning-msg {
+      color: #ef4444;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(239, 68, 68, 0.04);
+      animation: fgFadeIn 0.2s ease;
     }
 
     /* ─── Main ─── */
@@ -232,7 +398,27 @@
       font-size: 15px;
       font-weight: 700;
       color: #c8cad3;
-      margin-bottom: 12px;
+      margin-bottom: 6px;
+    }
+
+    .domain-list-hint {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: #4a4e63;
+      margin-bottom: 14px;
+      padding: 6px 10px;
+      background: rgba(99, 102, 241, 0.04);
+      border: 1px solid rgba(99, 102, 241, 0.08);
+      border-radius: 8px;
+    }
+    .domain-list-hint svg {
+      width: 14px;
+      height: 14px;
+      color: #6366f1;
+      flex-shrink: 0;
+      opacity: 0.5;
     }
 
     .domain-table-head {
@@ -610,6 +796,144 @@
       opacity: 1;
       transform: translateY(0);
     }
+    .toast.error {
+      background: #ef4444;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+    }
+
+    /* ─── Modal Styles ─── */
+    .modal-backdrop {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(8, 10, 18, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .modal-backdrop.show {
+      display: flex;
+      opacity: 1;
+    }
+    .modal-card {
+      background: #13151e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 380px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+    .modal-backdrop.show .modal-card {
+      transform: scale(1);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #f0f1f5;
+    }
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: #5a5e73;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.15s;
+    }
+    .modal-close-btn:hover {
+      color: #e2e4ea;
+    }
+    .modal-text {
+      font-size: 12.5px;
+      color: #8b8fa3;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+    .modal-input-wrap {
+      display: flex;
+      align-items: center;
+      background: #1a1d2b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 0 14px;
+      margin-bottom: 8px;
+      transition: border-color 0.2s;
+    }
+    .modal-input-wrap:focus-within {
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+    .modal-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #e2e4ea;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 12px 0;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+    .modal-input::-webkit-outer-spin-button,
+    .modal-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .modal-input-unit {
+      font-size: 12px;
+      color: #5a5e73;
+    }
+    .modal-error {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ef4444;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .modal-btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .modal-btn.secondary {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: #8b8fa3;
+    }
+    .modal-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #c8cad3;
+    }
+    .modal-btn.primary {
+      background: #6366f1;
+      border: none;
+      color: #fff;
+    }
+    .modal-btn.primary:hover {
+      background: #5558e6;
+    }
 
     /* Responsive */
     @media (max-width: 750px) {
@@ -624,7 +948,9 @@
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-brand">FocusGate</div>
+    <div class="sidebar-brand" style="margin-bottom: 8px;">
+      <img src="icons/text_logo.png" alt="FocusGate" style="height: 24px; width: auto; object-fit: contain; display: block;">
+    </div>
     <div class="sidebar-tagline">Pause. Reflect. Proceed.</div>
     <nav class="sidebar-nav">
       <button class="sidebar-link active" data-page="websites">
@@ -637,20 +963,30 @@
       </button>
     </nav>
     
-    <div class="pause-card">
+    <div class="pause-card" id="pause-card">
+      <!-- Header Row -->
       <div class="pause-header-row">
-        <span class="pause-label-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Pause Extension
-        </span>
-        <label class="switch">
-          <input type="checkbox" id="pause-toggle">
-          <span class="slider-toggle"></span>
-        </label>
+        <span class="pause-card-title">Pause Extension</span>
+        <!-- Status Indicator (ON/OFF) -->
+        <div class="pause-toggle-pill" id="pause-trigger-btn">
+          <span class="pause-pill-dot"></span>
+          <span class="pause-pill-text" id="pause-pill-text">ON</span>
+        </div>
       </div>
-      <div>
-        <span class="pause-status" id="pause-status-text">ON</span>
-        <div class="sidebar-version">Version 1.0.0</div>
+      
+      <!-- Hold Button with fill progress -->
+      <div class="pause-hold-btn" id="pause-hold-trigger">
+        <div class="pause-hold-fill" id="pause-hold-fill"></div>
+        <span class="pause-hold-label" id="pause-hold-label">Hold to disable · 20s</span>
+      </div>
+
+      <!-- Warning (shown only during hold) -->
+      <div class="pause-danger-alert" id="pause-danger-alert">Is it really necessary?</div>
+      
+      <!-- Hint explaining hold action -->
+      <div class="pause-card-hint" id="pause-card-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v6"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 16"/></svg>
+        <span>Press &amp; hold button to change</span>
       </div>
     </div>
   </aside>
@@ -672,6 +1008,10 @@
       </div>
 
       <div class="domain-list-header">Your Blocked Websites</div>
+      <div class="domain-list-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v6"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 16"/></svg>
+        <span>Press &amp; hold to change duration or remove a site</span>
+      </div>
       <div class="domain-table-head">
         <span class="col-website">Website</span>
         <span class="col-hold">Hold Duration</span>
@@ -744,6 +1084,45 @@
 
   <!-- Toast -->
   <div class="toast" id="toast">Saved!</div>
+
+  <!-- Custom Duration Modal -->
+  <div class="modal-backdrop" id="custom-duration-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Custom Hold Duration</h3>
+        <button class="modal-close-btn" id="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-text">Set how many seconds of holding are required before you can access this website.</p>
+        <div class="modal-input-wrap">
+          <input type="number" class="modal-input" id="custom-duration-input" min="1" max="180" placeholder="Duration (1-180)">
+          <span class="modal-input-unit">seconds</span>
+        </div>
+        <div class="modal-error" id="modal-error-msg">Please enter a number between 1 and 180.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn secondary" id="modal-cancel-btn">Cancel</button>
+        <button class="modal-btn primary" id="modal-save-btn">Save Duration</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div class="modal-backdrop" id="confirm-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="confirm-modal-title">Confirm Action</h3>
+        <button class="modal-close-btn" id="confirm-modal-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-text" id="confirm-modal-text">Are you sure you want to proceed?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn secondary" id="confirm-modal-cancel-btn">Cancel</button>
+        <button class="modal-btn primary" id="confirm-modal-confirm-btn" style="background: #ef4444; border: none; color: #fff;">Confirm</button>
+      </div>
+    </div>
+  </div>
 
   <script src="options.js"></script>
 </body>

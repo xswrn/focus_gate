@@ -8,15 +8,15 @@
   const statusText = document.querySelector(".status-text");
 
   function updateStatus(paused) {
-    if (paused) {
-      dot.classList.add("paused");
-      statusText.classList.add("paused");
-      statusText.innerHTML = "<strong>Paused</strong> — Extension is inactive";
-    } else {
-      dot.classList.remove("paused");
-      statusText.classList.remove("paused");
-      statusText.innerHTML = "<strong>Active</strong> — Guarding your focus";
-    }
+    dot.classList.toggle("paused", paused);
+    statusText.classList.toggle("paused", paused);
+    statusText.textContent = "";
+    const strong = document.createElement("strong");
+    strong.textContent = paused ? "Paused" : "Active";
+    statusText.appendChild(strong);
+    statusText.appendChild(document.createTextNode(
+      paused ? " — Extension is inactive" : " — Guarding your focus"
+    ));
   }
 
   // Load paused status from sync storage
