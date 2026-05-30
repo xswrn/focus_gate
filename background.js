@@ -54,10 +54,10 @@ function sanitizeSyncData(data) {
 
 function updateBadge(paused) {
   if (paused) {
-    browser.action.setBadgeText({ text: "OFF" });
-    browser.action.setBadgeBackgroundColor({ color: "#5a5e73" });
+    browser.action.setBadgeText({ text: "OFF" }).catch(() => {});
+    browser.action.setBadgeBackgroundColor({ color: "#555555" }).catch(() => {});
   } else {
-    browser.action.setBadgeText({ text: "" });
+    browser.action.setBadgeText({ text: "" }).catch(() => {});
   }
 }
 
@@ -162,7 +162,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case "START_TIMER":
       if (tabId != null && Number.isInteger(tabId)) {
         const { domainStr } = getNormalizedDomainInfo(message.hostname);
-        const safeDuration = Math.max(1, Math.min(180, Number(message.duration) || 5));
+        const safeDuration = Math.max(1, Math.min(120, Number(message.duration) || 5));
         browser.alarms.create(`timer_${tabId}_${domainStr}`, { delayInMinutes: safeDuration }).catch(() => {});
       }
       return false;
@@ -192,10 +192,10 @@ browser.tabs.onRemoved.addListener((tabId) => {
   browser.alarms.getAll().then(alarms => {
     alarms.forEach(alarm => {
       if (alarm.name.startsWith(`timer_${tabId}_`)) {
-        browser.alarms.clear(alarm.name);
+        browser.alarms.clear(alarm.name).catch(() => {});
       }
     });
-  });
+  }).catch(() => {});
 });
 
 // Handle alarms (timer expiration)

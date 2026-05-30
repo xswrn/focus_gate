@@ -10,8 +10,8 @@
     html, body {
       height: 100%;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0a0c14;
-      color: #e2e4ea;
+      background: #09090b;
+      color: #d4d4d8;
     }
 
     body {
@@ -23,7 +23,7 @@
     .sidebar {
       width: 220px;
       min-width: 220px;
-      background: #0e1019;
+      background: #08080a;
       border-right: 1px solid rgba(255,255,255,0.05);
       padding: 28px 16px;
       display: flex;
@@ -31,15 +31,25 @@
     }
 
     .sidebar-brand {
-      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .sidebar-brand img {
+      height: 22px;
+      width: 22px;
+      object-fit: contain;
+    }
+    .sidebar-brand span {
+      font-size: 16px;
       font-weight: 800;
-      color: #f0f1f5;
-      margin-bottom: 2px;
+      color: #d4d4d8;
       letter-spacing: -0.3px;
     }
     .sidebar-tagline {
       font-size: 12px;
-      color: #5a5e73;
+      color: #71717a;
       margin-bottom: 32px;
     }
 
@@ -54,7 +64,7 @@
       gap: 10px;
       padding: 10px 14px;
       border-radius: 10px;
-      color: #8b8fa3;
+      color: #a1a1aa;
       font-size: 14px;
       font-weight: 500;
       text-decoration: none;
@@ -68,11 +78,11 @@
     }
     .sidebar-link:hover {
       background: rgba(255,255,255,0.04);
-      color: #c8cad3;
+      color: #e4e4e7;
     }
     .sidebar-link.active {
-      background: #6366f1;
-      color: #fff;
+      background: #e4e4e7;
+      color: #050505;
       font-weight: 600;
     }
     .sidebar-link svg {
@@ -84,8 +94,8 @@
     /* Sidebar Pause Card */
     .pause-card {
       margin-top: auto;
-      background: #13151e;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: #0f0f11;
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 14px;
       padding: 14px;
       display: flex;
@@ -122,7 +132,7 @@
     .pause-card-title {
       font-size: 13px;
       font-weight: 700;
-      color: #e2e4ea;
+      color: #d4d4d8;
       line-height: 1.3;
     }
 
@@ -132,15 +142,15 @@
       gap: 6px;
       padding: 4px 10px;
       border-radius: 16px;
-      border: 1.5px solid #22c55e;
-      background: rgba(34, 197, 94, 0.05);
+      border: 1.5px solid rgba(34, 197, 94, 0.4);
+      background: rgba(34, 197, 94, 0.04);
       cursor: default;
       pointer-events: none;
       transition: all 0.2s ease;
       flex-shrink: 0;
     }
     .pause-toggle-pill.paused {
-      border-color: #5a5e73;
+      border-color: #555555;
       background: rgba(90, 94, 115, 0.05);
     }
 
@@ -152,7 +162,7 @@
       transition: all 0.2s ease;
     }
     .pause-toggle-pill.paused .pause-pill-dot {
-      background: #5a5e73;
+      background: #555555;
     }
 
     .pause-pill-text {
@@ -162,7 +172,7 @@
       transition: all 0.2s ease;
     }
     .pause-toggle-pill.paused .pause-pill-text {
-      color: #8b8fa3;
+      color: #888888;
     }
 
     /* Hold Button */
@@ -179,8 +189,8 @@
       transition: border-color 0.2s ease, background 0.2s ease;
     }
     .pause-hold-btn:hover {
-      background: rgba(99, 102, 241, 0.04);
-      border-color: rgba(99, 102, 241, 0.2);
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.12);
     }
     .pause-hold-btn:active {
       transform: scale(0.98);
@@ -191,7 +201,7 @@
       left: 0;
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.28));
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.20));
       border-radius: 10px;
       z-index: 0;
     }
@@ -200,7 +210,7 @@
       z-index: 1;
       font-size: 11.5px;
       font-weight: 600;
-      color: #8b8fa3;
+      color: #888888;
       display: block;
       text-align: center;
     }
@@ -218,7 +228,7 @@
       justify-content: center;
       gap: 5px;
       font-size: 10px;
-      color: #5a5e73;
+      color: #555555;
       text-align: center;
       margin-top: 2px;
       animation: fgFadeIn 0.2s ease;
@@ -226,16 +236,12 @@
     .pause-card-hint svg {
       width: 12px;
       height: 12px;
-      color: #6366f1;
+      color: #d4d4d8;
       flex-shrink: 0;
       opacity: 0.65;
     }
 
-    .sidebar-version {
-      font-size: 11px;
-      color: #3f4255;
-      margin-top: 4px;
-    }
+
 
     /* Website Deletion & Dropdown Progress Styles */
     .domain-remove {
@@ -278,7 +284,7 @@
       left: 0;
       bottom: 0;
       width: 0%;
-      background: rgba(99, 102, 241, 0.25);
+      background: rgba(255, 255, 255, 0.18);
       z-index: 1;
       pointer-events: none;
     }
@@ -311,20 +317,20 @@
     .page-title {
       font-size: 26px;
       font-weight: 800;
-      color: #f0f1f5;
+      color: #d4d4d8;
       margin-bottom: 4px;
       letter-spacing: -0.3px;
     }
     .page-subtitle {
       font-size: 14px;
-      color: #5a5e73;
+      color: #71717a;
       margin-bottom: 30px;
     }
 
     /* ─── Cards ─── */
     .card {
-      background: #12141e;
-      border: 1px solid rgba(255,255,255,0.06);
+      background: #0f0f11;
+      border: 1px solid rgba(255,255,255,0.05);
       border-radius: 14px;
       padding: 24px;
       margin-bottom: 20px;
@@ -332,12 +338,12 @@
     .card-title {
       font-size: 16px;
       font-weight: 700;
-      color: #e2e4ea;
+      color: #d4d4d8;
       margin-bottom: 4px;
     }
     .card-desc {
       font-size: 13px;
-      color: #5a5e73;
+      color: #71717a;
       margin-bottom: 18px;
     }
 
@@ -352,38 +358,38 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: #1a1d2b;
-      border: 1px solid rgba(255,255,255,0.08);
+      background: #18181b;
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 12px;
       padding: 0 16px;
       transition: border-color 0.2s;
     }
     .add-input-wrap:focus-within {
-      border-color: rgba(99,102,241,0.5);
+      border-color: rgba(255,255,255,0.20);
     }
     .add-input-wrap svg {
       width: 18px; height: 18px;
-      color: #5a5e73;
+      color: #71717a;
       flex-shrink: 0;
     }
     .add-input {
       flex: 1;
       background: none;
       border: none;
-      color: #e2e4ea;
+      color: #d4d4d8;
       font-family: inherit;
       font-size: 14px;
       padding: 13px 0;
       outline: none;
     }
-    .add-input::placeholder { color: #4a4e63; }
+    .add-input::placeholder { color: #52525b; }
 
     .add-btn {
       padding: 12px 24px;
-      background: #6366f1;
+      background: #e4e4e7;
       border: none;
       border-radius: 12px;
-      color: #fff;
+      color: #050505;
       font-family: inherit;
       font-size: 14px;
       font-weight: 600;
@@ -391,13 +397,23 @@
       transition: all 0.18s;
       white-space: nowrap;
     }
-    .add-btn:hover { background: #5558e6; }
+    .add-btn:hover { background: #e4e4e7; }
+    a.add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    a.add-btn svg {
+      width: 16px;
+      height: 16px;
+    }
 
     /* ─── Domain list ─── */
     .domain-list-header {
       font-size: 15px;
       font-weight: 700;
-      color: #c8cad3;
+      color: #cccccc;
       margin-bottom: 6px;
     }
 
@@ -406,17 +422,17 @@
       align-items: center;
       gap: 6px;
       font-size: 11.5px;
-      color: #4a4e63;
+      color: #444444;
       margin-bottom: 14px;
       padding: 6px 10px;
-      background: rgba(99, 102, 241, 0.04);
-      border: 1px solid rgba(99, 102, 241, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
       border-radius: 8px;
     }
     .domain-list-hint svg {
       width: 14px;
       height: 14px;
-      color: #6366f1;
+      color: #d4d4d8;
       flex-shrink: 0;
       opacity: 0.5;
     }
@@ -425,7 +441,7 @@
       display: flex;
       padding: 0 16px 8px;
       font-size: 12px;
-      color: #5a5e73;
+      color: #555555;
       font-weight: 500;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -445,7 +461,7 @@
       align-items: center;
       gap: 12px;
       padding: 10px 16px;
-      background: #181b28;
+      background: #111111;
       border: 1px solid rgba(255,255,255,0.04);
       border-radius: 10px;
       transition: all 0.18s;
@@ -457,7 +473,7 @@
     .domain-favicon {
       width: 28px; height: 28px;
       border-radius: 6px;
-      background: #252838;
+      background: #1c1c1c;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -468,15 +484,16 @@
       border-radius: 3px;
     }
     .domain-favicon svg {
-      width: 16px; height: 16px;
-      color: #818cf8;
+      width: 16px;
+      height: 16px;
+      color: #d4d4d8;
     }
 
     .domain-name {
       flex: 1;
       font-size: 14px;
       font-weight: 500;
-      color: #e2e4ea;
+      color: #e0e0e0;
     }
 
     /* Custom Dropdown Styles */
@@ -492,10 +509,10 @@
       justify-content: space-between;
       gap: 8px;
       padding: 8px 12px;
-      background: #13151e;
+      background: #0a0a0a;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 8px;
-      color: #e2e4ea;
+      color: #e0e0e0;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
@@ -504,17 +521,17 @@
       text-align: left;
     }
     .fg-dropdown-btn:hover {
-      background: #1c1e2b;
-      border-color: rgba(99, 102, 241, 0.4);
+      background: #181818;
+      border-color: rgba(255, 255, 255, 0.25);
     }
     .fg-dropdown-btn.active {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+      border-color: #d4d4d8;
+      box-shadow: 0 0 0 2px rgba(212, 212, 216, 0.10);
     }
     .fg-dropdown-btn svg {
       width: 14px;
       height: 14px;
-      color: #8b8fa3;
+      color: #888888;
       transition: transform 0.2s;
       flex-shrink: 0;
     }
@@ -526,10 +543,10 @@
       position: absolute;
       top: calc(100% + 6px);
       right: 0;
-      background: #13151e;
+      background: #0a0a0a;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 10px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.05);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.03);
       z-index: 100;
       display: none;
       flex-direction: column;
@@ -547,7 +564,7 @@
       gap: 12px;
       padding: 8px 10px;
       border-radius: 6px;
-      color: #a5b4fc;
+      color: #cccccc;
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
@@ -559,19 +576,19 @@
       text-align: left;
     }
     .fg-dropdown-option:hover {
-      background: #1c1e2b;
-      color: #fff;
+      background: #181818;
+      color: #e4e4e7;
     }
     .fg-dropdown-option.selected {
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
+      background: rgba(255, 255, 255, 0.10);
+      color: #cccccc;
       font-weight: 600;
     }
     .fg-dropdown-option svg.checkmark {
       width: 14px;
       height: 14px;
       opacity: 0;
-      color: #818cf8;
+      color: #d4d4d8;
       flex-shrink: 0;
     }
     .fg-dropdown-option.selected svg.checkmark {
@@ -581,12 +598,12 @@
       width: 12px;
       height: 12px;
       opacity: 0.6;
-      color: #8b8fa3;
+      color: #888888;
       flex-shrink: 0;
     }
     .fg-dropdown-option.custom-opt:hover svg.edit-icon {
       opacity: 1;
-      color: #fff;
+      color: #d4d4d8;
     }
 
     .domain-remove {
@@ -595,7 +612,7 @@
       background: none;
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 8px;
-      color: #5a5e73;
+      color: #555555;
       cursor: pointer;
       transition: all 0.18s;
       flex-shrink: 0;
@@ -613,7 +630,7 @@
       justify-content: space-between;
       margin-top: 16px;
       font-size: 13px;
-      color: #5a5e73;
+      color: #555555;
     }
     .domain-count-left {
       display: flex;
@@ -639,7 +656,7 @@
     .domain-empty {
       text-align: center;
       padding: 32px;
-      color: #3f4255;
+      color: #333333;
       font-size: 14px;
     }
 
@@ -660,7 +677,7 @@
       position: absolute;
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #252838;
+      background-color: #27272a;
       transition: .2s;
       border-radius: 22px;
     }
@@ -671,15 +688,16 @@
       width: 16px;
       left: 3px;
       bottom: 3px;
-      background-color: white;
+      background-color: #a1a1aa;
       transition: .2s;
       border-radius: 50%;
     }
     input:checked + .slider-toggle {
-      background-color: #6366f1;
+      background-color: #e4e4e7;
     }
     input:checked + .slider-toggle:before {
       transform: translateX(18px);
+      background-color: #000000;
     }
 
     /* ─── Settings page ─── */
@@ -699,21 +717,21 @@
     }
     .setting-icon {
       width: 38px; height: 38px;
-      background: rgba(99,102,241,0.1);
+      background: rgba(255,255,255,0.06);
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
-    .setting-icon svg { width: 18px; height: 18px; color: #818cf8; }
+    .setting-icon svg { width: 18px; height: 18px; color: #d4d4d8; }
 
     .setting-label {
       font-size: 14px;
       font-weight: 600;
-      color: #e2e4ea;
+      color: #e0e0e0;
     }
     .setting-desc {
       font-size: 12px;
-      color: #5a5e73;
+      color: #555555;
       margin-top: 2px;
     }
 
@@ -722,27 +740,27 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: #1a1d2b;
+      background: #141414;
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 10px;
       padding: 12px 16px;
       transition: border-color 0.2s;
     }
     .prompt-input-wrap:focus-within {
-      border-color: rgba(99,102,241,0.5);
+      border-color: rgba(255,255,255,0.30);
     }
     .prompt-input {
       flex: 1;
       background: none;
       border: none;
-      color: #e2e4ea;
+      color: #e0e0e0;
       font-family: inherit;
       font-size: 14px;
       outline: none;
     }
-    .prompt-input::placeholder { color: #4a4e63; }
+    .prompt-input::placeholder { color: #444444; }
     .prompt-edit-icon {
-      color: #5a5e73;
+      color: #555555;
       flex-shrink: 0;
     }
     .prompt-edit-icon svg { width: 16px; height: 16px; }
@@ -785,10 +803,10 @@
       align-items: center;
       gap: 8px;
       padding: 10px 20px;
-      background: #1a1d2b;
+      background: #141414;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 12px;
-      color: #e2e4ea;
+      color: #e0e0e0;
       font-family: inherit;
       font-size: 13.5px;
       font-weight: 600;
@@ -797,14 +815,14 @@
       text-decoration: none;
     }
     .feedback-btn:hover {
-      background: #22253a;
-      border-color: rgba(99, 102, 241, 0.4);
-      color: #fff;
+      background: #1a1a1a;
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #e4e4e7;
     }
     .feedback-btn svg {
       width: 16px;
       height: 16px;
-      color: #818cf8;
+      color: #d4d4d8;
     }
 
     /* Toast */
@@ -813,12 +831,12 @@
       bottom: 24px;
       right: 24px;
       padding: 12px 20px;
-      background: #22c55e;
-      color: #fff;
+      background: #e4e4e7;
+      color: #050505;
       border-radius: 10px;
       font-size: 13px;
       font-weight: 600;
-      box-shadow: 0 4px 20px rgba(34,197,94,0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
       opacity: 0;
       transform: translateY(10px);
       transition: all 0.3s;
@@ -838,7 +856,7 @@
     .modal-backdrop {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(8, 10, 18, 0.7);
+      background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       display: none;
@@ -853,13 +871,13 @@
       opacity: 1;
     }
     .modal-card {
-      background: #13151e;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #0f0f11;
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 16px;
       width: 90%;
       max-width: 380px;
       padding: 24px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
       transform: scale(0.95);
       transition: transform 0.2s ease;
     }
@@ -875,12 +893,12 @@
     .modal-title {
       font-size: 16px;
       font-weight: 700;
-      color: #f0f1f5;
+      color: #d4d4d8;
     }
     .modal-close-btn {
       background: none;
       border: none;
-      color: #5a5e73;
+      color: #71717a;
       font-size: 22px;
       cursor: pointer;
       line-height: 1;
@@ -888,32 +906,32 @@
       transition: color 0.15s;
     }
     .modal-close-btn:hover {
-      color: #e2e4ea;
+      color: #d4d4d8;
     }
     .modal-text {
       font-size: 12.5px;
-      color: #8b8fa3;
+      color: #a1a1aa;
       line-height: 1.5;
       margin-bottom: 18px;
     }
     .modal-input-wrap {
       display: flex;
       align-items: center;
-      background: #1a1d2b;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: #18181b;
+      border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 10px;
       padding: 0 14px;
       margin-bottom: 8px;
       transition: border-color 0.2s;
     }
     .modal-input-wrap:focus-within {
-      border-color: rgba(99, 102, 241, 0.5);
+      border-color: rgba(255, 255, 255, 0.20);
     }
     .modal-input {
       flex: 1;
       background: none;
       border: none;
-      color: #e2e4ea;
+      color: #d4d4d8;
       font-family: inherit;
       font-size: 14px;
       padding: 12px 0;
@@ -927,7 +945,7 @@
     }
     .modal-input-unit {
       font-size: 12px;
-      color: #5a5e73;
+      color: #555555;
     }
     .modal-error {
       font-size: 11px;
@@ -953,19 +971,19 @@
     .modal-btn.secondary {
       background: none;
       border: 1px solid rgba(255, 255, 255, 0.06);
-      color: #8b8fa3;
+      color: #888888;
     }
     .modal-btn.secondary:hover {
       background: rgba(255, 255, 255, 0.04);
-      color: #c8cad3;
+      color: #cccccc;
     }
     .modal-btn.primary {
-      background: #6366f1;
+      background: #e4e4e7;
       border: none;
-      color: #fff;
+      color: #050505;
     }
     .modal-btn.primary:hover {
-      background: #5558e6;
+      background: #e4e4e7;
     }
 
     /* Responsive */
@@ -981,8 +999,9 @@
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="sidebar-brand" style="margin-bottom: 8px;">
-      <img src="icons/text_logo.png" alt="FocusGate" style="height: 24px; width: auto; object-fit: contain; display: block;">
+    <div class="sidebar-brand">
+      <img src="icons/logo_dot.svg" alt="FocusGate">
+      <span>FocusGate</span>
     </div>
     <div class="sidebar-tagline">Pause. Reflect. Proceed.</div>
     <nav class="sidebar-nav">
@@ -1098,14 +1117,16 @@
             <span class="slider-toggle"></span>
           </label>
         </div>
+      </div>
+
       <!-- Feedback & Support -->
       <div class="card">
         <div class="card-title">Feedback & Support</div>
         <div class="card-desc">Have a suggestion or found a bug? Send us feedback or contact support.</div>
         
         <div class="feedback-row">
-          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=me.swaran.c@gmail.com&su=FocusGate%20Feedback" target="_blank" class="add-btn" id="email-link" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=me.swaran.c@gmail.com&su=FocusGate%20Feedback" target="_blank" class="add-btn" id="email-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             Send via Gmail
           </a>
           <a href="https://t.me/xswrn" target="_blank" class="feedback-btn" id="telegram-link">
@@ -1166,8 +1187,8 @@
         <p class="modal-text" id="confirm-modal-text">Are you sure you want to proceed?</p>
       </div>
       <div class="modal-footer">
-        <button class="modal-btn secondary" id="confirm-modal-cancel-btn">Cancel</button>
-        <button class="modal-btn primary" id="confirm-modal-confirm-btn" style="background: #ef4444; border: none; color: #fff;">Confirm</button>
+        <button class="modal-btn cancel" id="confirm-modal-cancel-btn">Cancel</button>
+        <button class="modal-btn primary" id="confirm-modal-confirm-btn" style="background: #ef4444; border: none; color: #ececec;">Confirm</button>
       </div>
     </div>
   </div>

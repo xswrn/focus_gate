@@ -2,6 +2,9 @@
 (function () {
   "use strict";
 
+  // Only run on http/https pages — avoid FOUC on data: URIs, about:blank, etc.
+  if (!/^https?:$/.test(location.protocol)) return;
+
   let overlayHost = null;
   let shadowRoot = null;
   let isOverlayVisible = false;
@@ -25,14 +28,7 @@
     }
   }
 
-  function escapeHTML(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+
 
   const RETRY_DELAYS = [0, 100, 250, 500, 1000];
 
@@ -80,29 +76,32 @@
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       .fg-fallback {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(8, 10, 18, 0.96);
-        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        background: rgba(0, 0, 0, 0.90);
         display: flex; align-items: center; justify-content: center;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        color: #e2e4ea;
+        color: #ececec;
         animation: fg-fbIn 0.3s ease;
       }
       @keyframes fg-fbIn { from { opacity: 0; } to { opacity: 1; } }
       .fg-fb-card {
-        background: #13151e;
-        border: 1px solid rgba(99, 102, 241, 0.15);
-        border-radius: 20px;
+        background: rgba(5, 5, 5, 0.94);
+        backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
         width: 92vw; max-width: 420px;
         padding: 40px 32px;
         display: flex; flex-direction: column; align-items: center;
         gap: 20px;
-        box-shadow: 0 0 80px rgba(99, 102, 241, 0.08), 0 4px 32px rgba(0,0,0,0.5);
+        box-shadow: 
+          0 30px 60px rgba(0, 0, 0, 0.6), 
+          0 4px 20px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
         text-align: center;
       }
       .fg-fb-icon {
         width: 48px; height: 48px;
-        background: rgba(99, 102, 241, 0.12);
-        border: 2px solid rgba(99, 102, 241, 0.3);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.10);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
       }
@@ -112,42 +111,70 @@
       }
       @keyframes fg-spin { to { transform: rotate(360deg); } }
       .fg-fb-title {
-        font-size: 20px; font-weight: 700; color: #f0f1f5;
+        font-size: 20px; font-weight: 700; color: #d4d4d8;
         letter-spacing: -0.3px;
       }
       .fg-fb-subtitle {
-        font-size: 14px; color: #8b8fa3; line-height: 1.5;
+        font-size: 14px; color: #a1a1aa; line-height: 1.5;
       }
       .fg-fb-retry {
         padding: 12px 28px;
-        background: linear-gradient(135deg, #6366f1 0%, #4f8cff 100%);
-        border: none; border-radius: 12px;
-        color: #fff; font-family: inherit;
+        background: rgba(255, 255, 255, 0.90);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #050505; font-family: inherit;
         font-size: 14px; font-weight: 600;
-        cursor: pointer; transition: all 0.2s;
+        cursor: pointer; transition: all 0.25s, transform 0.15s;
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
       }
-      .fg-fb-retry:hover { filter: brightness(1.08); }
-      .fg-fb-retry:active { filter: brightness(0.95); }
+      .fg-fb-retry:hover { background: rgba(255, 255, 255, 1.0); box-shadow: 0 4px 20px rgba(255, 255, 255, 0.12); }
+      .fg-fb-retry:active { background: rgba(255, 255, 255, 0.80); transform: scale(0.98); }
     `;
     shadow.appendChild(style);
 
     const wrapper = document.createElement("div");
     wrapper.className = "fg-fallback";
-    wrapper.innerHTML = `
-      <div class="fg-fb-card">
-        <div class="fg-fb-icon">
-          <svg class="fg-fb-spinner" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-          </svg>
-        </div>
-        <div class="fg-fb-title">FocusGate is starting&hellip;</div>
-        <div class="fg-fb-subtitle">Please wait a moment while the extension initializes.<br>If this persists, click Retry.</div>
-        <button class="fg-fb-retry">Retry</button>
-      </div>
-    `;
+
+    const fbCard = document.createElement("div");
+    fbCard.className = "fg-fb-card";
+
+    const fbIcon = document.createElement("div");
+    fbIcon.className = "fg-fb-icon";
+    const svgSpinner = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svgSpinner.setAttribute("class", "fg-fb-spinner");
+    svgSpinner.setAttribute("viewBox", "0 0 24 24");
+    svgSpinner.setAttribute("fill", "none");
+    svgSpinner.setAttribute("stroke", "currentColor");
+    svgSpinner.setAttribute("stroke-width", "2");
+    svgSpinner.setAttribute("stroke-linecap", "round");
+    svgSpinner.setAttribute("stroke-linejoin", "round");
+    const spinnerPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    spinnerPath.setAttribute("d", "M21 12a9 9 0 1 1-6.219-8.56");
+    svgSpinner.appendChild(spinnerPath);
+    fbIcon.appendChild(svgSpinner);
+    fbCard.appendChild(fbIcon);
+
+    const fbTitle = document.createElement("div");
+    fbTitle.className = "fg-fb-title";
+    fbTitle.textContent = "FocusGate is starting\u2026";
+    fbCard.appendChild(fbTitle);
+
+    const fbSubtitle = document.createElement("div");
+    fbSubtitle.className = "fg-fb-subtitle";
+    fbSubtitle.appendChild(document.createTextNode("Please wait a moment while the extension initializes."));
+    fbSubtitle.appendChild(document.createElement("br"));
+    fbSubtitle.appendChild(document.createTextNode("If this persists, click Retry."));
+    fbCard.appendChild(fbSubtitle);
+
+    const fbRetryBtn = document.createElement("button");
+    fbRetryBtn.className = "fg-fb-retry";
+    fbRetryBtn.textContent = "Retry";
+    fbCard.appendChild(fbRetryBtn);
+
+    wrapper.appendChild(fbCard);
     shadow.appendChild(wrapper);
 
-    shadow.querySelector(".fg-fb-retry").addEventListener("click", () => {
+    fbRetryBtn.addEventListener("click", () => {
       init(0);
     });
   }
@@ -224,20 +251,19 @@
   }
 
   function getOverlayCSS(holdSec, blurBlocked) {
-    const blurStyle = blurBlocked 
-      ? "backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);" 
-      : "";
+    const bgStyle = blurBlocked
+      ? "background: rgba(0, 0, 0, 0.60); backdrop-filter: blur(20px) saturate(120%); -webkit-backdrop-filter: blur(20px) saturate(120%);"
+      : "background: rgba(0, 0, 0, 0.90);";
 
     return `
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       .fg-overlay {
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(8, 10, 18, 0.94);
+        ${bgStyle}
         display: flex; align-items: center; justify-content: center;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        color: #e2e4ea;
-        ${blurStyle}
+        color: #ececec;
         animation: fg-fadeIn 0.35s ease;
       }
 
@@ -247,14 +273,19 @@
       }
 
       .fg-card {
-        background: #13151e;
-        border: 1px solid rgba(99, 102, 241, 0.15);
-        border-radius: 20px;
+        background: rgba(5, 5, 5, 0.94);
+        backdrop-filter: blur(24px) saturate(120%);
+        -webkit-backdrop-filter: blur(24px) saturate(120%);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 24px;
         width: 92vw; max-width: 500px;
         padding: 36px 32px 28px;
         display: flex; flex-direction: column; align-items: center;
         gap: 0;
-        box-shadow: 0 0 80px rgba(99, 102, 241, 0.08), 0 4px 32px rgba(0,0,0,0.5);
+        box-shadow: 
+          0 30px 60px rgba(0, 0, 0, 0.6), 
+          0 4px 20px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
         position: relative;
         animation: fg-slideUp 0.4s ease;
       }
@@ -268,37 +299,37 @@
       .fg-badge {
         position: absolute; top: 18px; right: 20px;
         display: flex; align-items: center; gap: 6px;
-        background: rgba(99, 102, 241, 0.12);
-        border: 1px solid rgba(99, 102, 241, 0.25);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.10);
         border-radius: 20px;
         padding: 5px 14px;
         font-size: 12px;
-        color: #a5b4fc;
+        color: #a1a1aa;
         font-weight: 500;
       }
       .fg-badge-dot {
         width: 7px; height: 7px;
-        background: #6366f1;
+        background: #22c55e;
         border-radius: 50%;
-        box-shadow: 0 0 6px #6366f1;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
       }
 
       /* Clock icon */
       .fg-clock-icon {
         width: 48px; height: 48px;
-        background: rgba(99, 102, 241, 0.12);
-        border: 2px solid rgba(99, 102, 241, 0.3);
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.10);
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         margin-bottom: 20px;
         margin-top: 4px;
       }
-      .fg-clock-icon svg { width: 24px; height: 24px; }
+      .fg-clock-icon svg { width: 24px; height: 24px; stroke: #d4d4d8; }
 
       /* Title */
       .fg-title {
         font-size: 24px; font-weight: 700;
-        color: #f0f1f5;
+        color: #d4d4d8;
         text-align: center;
         margin-bottom: 6px;
         letter-spacing: -0.3px;
@@ -306,20 +337,25 @@
 
       .fg-subtitle {
         font-size: 14px;
-        color: #8b8fa3;
+        color: #a1a1aa;
         margin-bottom: 18px;
         text-align: center;
       }
       .fg-subtitle a {
-        color: #818cf8;
-        text-decoration: none;
+        color: #d4d4d8;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        transition: color 0.2s;
+      }
+      .fg-subtitle a:hover {
+        color: #ffffff;
       }
 
       /* Divider */
       .fg-divider {
         width: 100%;
         height: 1px;
-        background: rgba(255,255,255,0.06);
+        background: rgba(255,255,255,0.05);
         margin: 4px 0 18px;
       }
 
@@ -327,12 +363,12 @@
       .fg-reappear-info {
         text-align: center;
         font-size: 13.5px;
-        color: #8b8fa3;
+        color: #a1a1aa;
         margin-bottom: 20px;
         line-height: 1.5;
       }
       .fg-reappear-info strong {
-        color: #818cf8;
+        color: #d4d4d8;
         font-weight: 600;
       }
 
@@ -344,23 +380,27 @@
       .fg-textarea {
         width: 100%;
         min-height: 90px;
-        background: #1a1d2b;
-        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255,255,255,0.06);
         border-radius: 12px;
-        color: #e2e4ea;
+        color: #d4d4d8;
         font-family: inherit;
         font-size: 14px;
         padding: 14px 16px;
         resize: vertical;
         outline: none;
-        transition: border-color 0.2s;
+        transition: border-color 0.2s, background-color 0.2s;
       }
-      .fg-textarea::placeholder { color: #4a4e63; }
-      .fg-textarea:focus { border-color: rgba(99, 102, 241, 0.5); }
+      .fg-textarea::placeholder { color: #52525b; }
+      .fg-textarea:focus { 
+        border-color: rgba(255, 255, 255, 0.20); 
+        background: rgba(0, 0, 0, 0.4);
+      }
 
       .fg-textarea-hint {
         display: flex; justify-content: space-between; align-items: center;
-        font-size: 12px; color: #5a5e73;
+        width: 100%;
+        font-size: 12px; color: #71717a;
         padding: 6px 2px 0;
         margin-bottom: 18px;
       }
@@ -378,19 +418,19 @@
       .fg-slider-label {
         font-size: 14px;
         font-weight: 600;
-        color: #c8cad3;
+        color: #a1a1aa;
       }
       .fg-slider-value {
         font-size: 14px;
         font-weight: 700;
-        color: #818cf8;
+        color: #d4d4d8;
       }
       .fg-slider-track {
         display: flex; align-items: center; gap: 10px;
         margin-bottom: 12px;
       }
       .fg-slider-bound {
-        font-size: 11px; color: #5a5e73; white-space: nowrap;
+        font-size: 11px; color: #52525b; white-space: nowrap;
         min-width: 36px;
       }
       .fg-slider-bound.right { text-align: right; }
@@ -400,33 +440,43 @@
         appearance: none;
         flex: 1;
         height: 6px;
-        background: #252838;
+        background: rgba(255, 255, 255, 0.08);
         border-radius: 3px;
         outline: none;
         cursor: pointer;
       }
       input[type="range"].fg-range::-moz-range-track {
         height: 6px;
-        background: #252838;
+        background: rgba(255, 255, 255, 0.08);
         border-radius: 3px;
         border: none;
       }
       input[type="range"].fg-range::-moz-range-thumb {
         width: 18px; height: 18px;
         border-radius: 50%;
-        background: #818cf8;
-        border: 3px solid #13151e;
+        background: #d4d4d8;
+        border: 3px solid #0a0a0c;
         cursor: pointer;
-        box-shadow: 0 0 8px rgba(99,102,241,0.4);
+        box-shadow: 0 0 8px rgba(255,255,255,0.15);
+        transition: background-color 0.2s, transform 0.15s;
+      }
+      input[type="range"].fg-range::-moz-range-thumb:hover {
+        background: #ffffff;
+        transform: scale(1.1);
       }
       input[type="range"].fg-range::-webkit-slider-thumb {
         -webkit-appearance: none;
         width: 18px; height: 18px;
         border-radius: 50%;
-        background: #818cf8;
-        border: 3px solid #13151e;
+        background: #d4d4d8;
+        border: 3px solid #0a0a0c;
         cursor: pointer;
-        box-shadow: 0 0 8px rgba(99,102,241,0.4);
+        box-shadow: 0 0 8px rgba(255,255,255,0.15);
+        transition: background-color 0.2s, transform 0.15s;
+      }
+      input[type="range"].fg-range::-webkit-slider-thumb:hover {
+        background: #ffffff;
+        transform: scale(1.1);
       }
 
       /* Preset buttons */
@@ -437,10 +487,10 @@
       .fg-preset-btn {
         flex: 1; min-width: 60px;
         padding: 8px 4px;
-        background: #1a1d2b;
-        border: 1px solid rgba(255,255,255,0.07);
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 10px;
-        color: #b0b3c5;
+        color: #a1a1aa;
         font-family: inherit;
         font-size: 13px;
         font-weight: 500;
@@ -449,14 +499,14 @@
         text-align: center;
       }
       .fg-preset-btn:hover {
-        background: #22253a;
-        border-color: rgba(99,102,241,0.3);
-        color: #d0d2e0;
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #d4d4d8;
       }
       .fg-preset-btn.active {
-        background: rgba(99, 102, 241, 0.18);
-        border-color: #6366f1;
-        color: #a5b4fc;
+        background: rgba(255, 255, 255, 0.10);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: #d4d4d8;
         font-weight: 600;
       }
 
@@ -471,10 +521,10 @@
         flex: 0 0 38%;
         display: flex; align-items: center; justify-content: center; gap: 10px;
         padding: 16px 12px;
-        background: #1a1d2b;
-        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
         border-radius: 14px;
-        color: #c8cad3;
+        color: #a1a1aa;
         font-family: inherit;
         font-size: 15px;
         font-weight: 600;
@@ -482,12 +532,13 @@
         transition: all 0.2s;
       }
       .fg-exit-btn:hover {
-        background: #22253a;
-        border-color: rgba(255,255,255,0.12);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+        color: #d4d4d8;
       }
       .fg-exit-btn svg { width: 18px; height: 18px; }
       .fg-exit-sub {
-        font-size: 11.5px; color: #5a5e73; font-weight: 400;
+        font-size: 11px; color: #71717a; font-weight: 400;
       }
       .fg-exit-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
 
@@ -496,26 +547,29 @@
         flex: 1;
         display: flex; align-items: center; gap: 14px;
         padding: 18px 22px;
-        background: linear-gradient(135deg, #6366f1 0%, #4f8cff 100%);
-        border: none;
+        background: rgba(255, 255, 255, 0.90);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 14px;
-        color: #fff;
+        color: #050505;
         font-family: inherit;
         font-size: 15px;
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: background-color 0.25s, transform 0.15s, box-shadow 0.25s;
         position: relative;
         overflow: hidden;
         user-select: none;
         -webkit-user-select: none;
         touch-action: none;
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
       }
       .fg-proceed-btn:hover {
-        filter: brightness(1.08);
+        background: rgba(255, 255, 255, 1.0);
+        box-shadow: 0 4px 20px rgba(255, 255, 255, 0.12);
       }
       .fg-proceed-btn:active {
-        filter: brightness(0.95);
+        background: rgba(255, 255, 255, 0.80);
+        transform: scale(0.98);
       }
 
       .fg-proceed-inner {
@@ -526,7 +580,7 @@
       .fg-proceed-sub {
         font-size: 11px;
         font-weight: 400;
-        opacity: 0.8;
+        opacity: 0.55;
         line-height: 1.35;
       }
 
@@ -539,12 +593,12 @@
       }
       .fg-ring-bg {
         fill: none;
-        stroke: rgba(255,255,255,0.2);
+        stroke: rgba(0,0,0,0.12);
         stroke-width: 3;
       }
       .fg-ring-progress {
         fill: none;
-        stroke: #fff;
+        stroke: #000;
         stroke-width: 3;
         stroke-linecap: round;
         stroke-dasharray: 113;
@@ -554,7 +608,7 @@
         transition: none;
       }
       .fg-ring-dot {
-        fill: #fff;
+        fill: #000;
         cx: 20;
         cy: 20;
         r: 5;
@@ -565,7 +619,7 @@
         position: absolute; top: 0; left: 0;
         height: 100%;
         width: 0%;
-        background: rgba(255,255,255,0.10);
+        background: rgba(0,0,0,0.06);
         transition: none;
         z-index: 1;
         border-radius: 14px;
@@ -588,12 +642,12 @@
       .fg-footer {
         display: flex; align-items: center; gap: 8px;
         font-size: 12.5px;
-        color: #5a5e73;
+        color: #71717a;
         text-align: center;
         line-height: 1.5;
       }
-      .fg-footer svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.6; }
-      .fg-footer strong { color: #818cf8; font-weight: 600; }
+      .fg-footer svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.5; }
+      .fg-footer strong { color: #d4d4d8; font-weight: 600; }
 
       /* Responsive */
       @media (max-width: 540px) {
@@ -605,26 +659,26 @@
 
       /* Firefox range filled track */
       input[type="range"].fg-range::-moz-range-progress {
-        background: #6366f1;
+        background: #d4d4d8;
         border-radius: 3px;
         height: 6px;
         transition: background 0.4s ease;
       }
       input[type="range"].fg-range.warning-track::-moz-range-progress {
-        background: linear-gradient(to right, #6366f1, #ef4444);
+        background: linear-gradient(to right, #d4d4d8, #ef4444);
       }
       input[type="range"].fg-range::-moz-range-thumb {
         transition: background 0.4s ease, box-shadow 0.4s ease;
       }
       input[type="range"].fg-range.warning-track::-moz-range-thumb {
         background: #ef4444;
-        border: 3px solid #13151e;
+        border: 3px solid #0a0a0c;
         box-shadow: 0 0 8px rgba(239,68,68,0.4);
       }
       input[type="range"].fg-range.warning-track::-webkit-slider-thumb {
         -webkit-appearance: none;
         background: #ef4444;
-        border: 3px solid #13151e;
+        border: 3px solid #0a0a0c;
         box-shadow: 0 0 8px rgba(239,68,68,0.4);
       }
 
@@ -667,7 +721,7 @@
       .fg-warning-badge {
         position: absolute; bottom: -2px; right: -2px;
         width: 18px; height: 18px;
-        background: #13151e;
+        background: #0a0a0c;
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
       }
@@ -693,7 +747,7 @@
       }
       .fg-warning-desc {
         font-size: 12.5px;
-        color: #8b8fa3;
+        color: #888888;
         line-height: 1.45;
       }
 
@@ -733,7 +787,7 @@
     const svgClock = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svgClock.setAttribute("viewBox", "0 0 24 24");
     svgClock.setAttribute("fill", "none");
-    svgClock.setAttribute("stroke", "#818cf8");
+    svgClock.setAttribute("stroke", "currentColor");
     svgClock.setAttribute("stroke-width", "2");
     svgClock.setAttribute("stroke-linecap", "round");
     svgClock.setAttribute("stroke-linejoin", "round");
@@ -816,7 +870,7 @@
       svgHint.appendChild(hintPath);
       hintSpan.appendChild(svgHint);
 
-      hintSpan.appendChild(document.createTextNode(" Type at least 10 characters to continue"));
+      hintSpan.appendChild(document.createTextNode(" Type at least 10 characters to continue "));
       textareaHint.appendChild(hintSpan);
 
       const charCountSpan = document.createElement("span");

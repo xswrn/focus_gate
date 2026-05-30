@@ -10,8 +10,8 @@
     body {
       width: 320px;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0e1019;
-      color: #e2e4ea;
+      background: #08080a;
+      color: #d4d4d8;
       padding: 0;
       overflow: hidden;
     }
@@ -37,12 +37,12 @@
     .popup-name {
       font-size: 16px;
       font-weight: 800;
-      color: #f0f1f5;
+      color: #d4d4d8;
       letter-spacing: -0.3px;
     }
     .popup-tagline {
       font-size: 11px;
-      color: #5a5e73;
+      color: #71717a;
     }
 
     .popup-body {
@@ -53,8 +53,8 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #13151e;
-      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255,255,255,0.05);
       border-radius: 12px;
       padding: 14px 16px;
       margin-bottom: 12px;
@@ -62,14 +62,14 @@
 
     .popup-stat-icon {
       width: 36px; height: 36px;
-      background: rgba(99,102,241,0.12);
+      background: rgba(255,255,255,0.04);
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
     .popup-stat-icon svg {
       width: 18px; height: 18px;
-      color: #818cf8;
+      color: #d4d4d8;
     }
 
     .popup-stat-info {
@@ -79,12 +79,12 @@
     .popup-stat-value {
       font-size: 20px;
       font-weight: 800;
-      color: #f0f1f5;
+      color: #d4d4d8;
       line-height: 1.2;
     }
     .popup-stat-label {
       font-size: 11.5px;
-      color: #5a5e73;
+      color: #71717a;
     }
 
     .popup-settings-btn {
@@ -94,10 +94,10 @@
       gap: 8px;
       width: 100%;
       padding: 13px 0;
-      background: #6366f1;
+      background: #e4e4e7;
       border: none;
       border-radius: 12px;
-      color: #fff;
+      color: #050505;
       font-family: inherit;
       font-size: 14px;
       font-weight: 600;
@@ -105,10 +105,11 @@
       transition: all 0.18s;
     }
     .popup-settings-btn:hover {
-      background: #5558e6;
+      background: #e4e4e7;
     }
     .popup-settings-btn svg {
       width: 16px; height: 16px;
+      color: #050505;
     }
 
     .popup-footer {
@@ -118,15 +119,15 @@
     }
     .popup-footer-text {
       font-size: 11px;
-      color: #3f4255;
+      color: #52525b;
     }
 
     .popup-status {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #13151e;
-      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255,255,255,0.05);
       border-radius: 12px;
       padding: 14px 16px;
       margin-bottom: 12px;
@@ -136,23 +137,23 @@
       width: 8px; height: 8px;
       background: #22c55e;
       border-radius: 50%;
-      box-shadow: 0 0 8px rgba(34,197,94,0.4);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
       flex-shrink: 0;
     }
     .status-text {
       font-size: 13px;
-      color: #8b8fa3;
+      color: #a1a1aa;
     }
     .status-text strong {
       color: #22c55e;
       font-weight: 600;
     }
     .status-dot.paused {
-      background: #5a5e73;
+      background: #52525b;
       box-shadow: none;
     }
     .status-text.paused strong {
-      color: #5a5e73;
+      color: #52525b;
     }
   </style>
 </head>
@@ -160,12 +161,10 @@
 
   <div class="popup-header">
     <div class="popup-logo">
-      <img src="icons/logo.png" alt="logo" style="width: 32px; height: 32px; object-fit: contain;">
+      <img src="icons/logo_dot.svg" alt="logo" style="width: 32px; height: 32px; object-fit: contain;">
     </div>
     <div class="popup-brand">
-      <span class="popup-name" style="margin-bottom: 2px;">
-        <img src="icons/text_logo.png" alt="FocusGate" style="height: 18px; width: auto; object-fit: contain; display: block;">
-      </span>
+      <span class="popup-name" style="margin-bottom: 2px;">FocusGate</span>
       <span class="popup-tagline">Pause. Reflect. Proceed.</span>
     </div>
   </div>

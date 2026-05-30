@@ -47,4 +47,10 @@
     browser.runtime.openOptionsPage();
     window.close();
   });
+
+  // Set version from manifest
+  const footerText = document.querySelector(".popup-footer-text");
+  if (footerText) {
+    footerText.textContent = "FocusGate v" + browser.runtime.getManifest().version;
+  }
 })();

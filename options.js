@@ -49,14 +49,7 @@
     return `${sec} sec`;
   }
 
-  function escapeHTML(str) {
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
+
 
   // Local state for blocklist
   let currentBlocklist = [];
@@ -167,10 +160,13 @@
 
   // Render domain list with custom dropdowns
   function renderDomainList(blocklist) {
-    domainListEl.innerHTML = "";
+    domainListEl.textContent = "";
 
     if (blocklist.length === 0) {
-      domainListEl.innerHTML = '<div class="domain-empty">No websites blocked yet. Add one above to get started.</div>';
+      const emptyDiv = document.createElement("div");
+      emptyDiv.className = "domain-empty";
+      emptyDiv.textContent = "No websites blocked yet. Add one above to get started.";
+      domainListEl.appendChild(emptyDiv);
       domainCountWrap.style.display = "none";
       return;
     }
@@ -179,7 +175,6 @@
     domainCountText.textContent = `${blocklist.length} website${blocklist.length !== 1 ? "s" : ""}`;
 
     blocklist.forEach((entry, index) => {
-      const escapedDomain = escapeHTML(entry.domain);
       const currentVal = typeof entry.holdDuration === "number" && !isNaN(entry.holdDuration)
         ? entry.holdDuration
         : 5;
