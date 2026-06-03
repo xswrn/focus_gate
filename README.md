@@ -1,5 +1,7 @@
 # Focus Gate – Mindful Browsing Extension
 
+🐻try it out : https://focus-gate.app
+
 ## Overview
 
 Focus Gate is a productivity-focused browser extension designed to reduce impulsive browsing and improve digital self-control.
